@@ -21,7 +21,7 @@
         <div class="card text-white bg-primary mb-3">
             <div class="card-body">
                 <h5 class="card-title">Total Sales</h5>
-                <p class="card-text h4">₹12,345</p>
+                <p class="card-text h4">₹{{ "{:,.2f}".format(metrics.total_sales) }}</p>
                 <p class="card-text"><small>+12% from last week</small></p>
             </div>
         </div>
@@ -30,7 +30,7 @@
         <div class="card text-white bg-success mb-3">
             <div class="card-body">
                 <h5 class="card-title">New Orders</h5>
-                <p class="card-text h4">24</p>
+                <p class="card-text h4">{{ metrics.new_orders }}</p>
                 <p class="card-text"><small>+5 from yesterday</small></p>
             </div>
         </div>
@@ -39,8 +39,8 @@
         <div class="card text-white bg-warning mb-3">
             <div class="card-body">
                 <h5 class="card-title">Products</h5>
-                <p class="card-text h4">156</p>
-                <p class="card-text"><small>8 low in stock</small></p>
+                <p class="card-text h4">{{ metrics.products }}</p>
+                <p class="card-text"><small>{{ metrics.low_stock }} low in stock</small></p>
             </div>
         </div>
     </div>
@@ -48,7 +48,7 @@
         <div class="card text-white bg-info mb-3">
             <div class="card-body">
                 <h5 class="card-title">Customers</h5>
-                <p class="card-text h4">89</p>
+                <p class="card-text h4">{{ metrics.customers }}</p>
                 <p class="card-text"><small>5 new today</small></p>
             </div>
         </div>
@@ -73,26 +73,12 @@
             </div>
             <div class="card-body">
                 <ul class="list-group list-group-flush">
+                    {% for product, count in top_products %}
                     <li class="list-group-item d-flex justify-content-between align-items-center">
-                        Product A
-                        <span class="badge bg-primary rounded-pill">14</span>
+                        {{ product }}
+                        <span class="badge bg-primary rounded-pill">{{ count }}</span>
                     </li>
-                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                        Product B
-                        <span class="badge bg-primary rounded-pill">12</span>
-                    </li>
-                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                        Product C
-                        <span class="badge bg-primary rounded-pill">9</span>
-                    </li>
-                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                        Product D
-                        <span class="badge bg-primary rounded-pill">7</span>
-                    </li>
-                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                        Product E
-                        <span class="badge bg-primary rounded-pill">5</span>
-                    </li>
+                    {% endfor %}
                 </ul>
             </div>
         </div>
@@ -117,46 +103,28 @@
                     </tr>
                 </thead>
                 <tbody>
+                    {% for order in recent_orders %}
                     <tr>
-                        <td>#ORD-1001</td>
-                        <td>John Doe</td>
-                        <td>2023-07-15</td>
-                        <td>₹1,250</td>
-                        <td><span class="badge bg-success">Completed</span></td>
+                        <td>#{{ order.order_id }}</td>
+                        <td>{{ order.customer_name }}</td>
+                        <td>{{ order.date }}</td>
+                        <td>₹{{ "{:,.2f}".format(order.amount) }}</td>
+                        <td>
+                            {% if order.status == 'Completed' %}
+                            <span class="badge bg-success">{{ order.status }}</span>
+                            {% elif order.status == 'Processing' %}
+                            <span class="badge bg-warning text-dark">{{ order.status }}</span>
+                            {% elif order.status == 'Cancelled' %}
+                            <span class="badge bg-danger">{{ order.status }}</span>
+                            {% else %}
+                            <span class="badge bg-secondary">{{ order.status }}</span>
+                            {% endif %}
+                        </td>
                         <td>
                             <button class="btn btn-sm btn-outline-primary">View</button>
                         </td>
                     </tr>
-                    <tr>
-                        <td>#ORD-1000</td>
-                        <td>Jane Smith</td>
-                        <td>2023-07-14</td>
-                        <td>₹890</td>
-                        <td><span class="badge bg-warning text-dark">Processing</span></td>
-                        <td>
-                            <button class="btn btn-sm btn-outline-primary">View</button>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>#ORD-0999</td>
-                        <td>Robert Johnson</td>
-                        <td>2023-07-14</td>
-                        <td>₹2,150</td>
-                        <td><span class="badge bg-success">Completed</span></td>
-                        <td>
-                            <button class="btn btn-sm btn-outline-primary">View</button>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>#ORD-0998</td>
-                        <td>Sarah Williams</td>
-                        <td>2023-07-13</td>
-                        <td>₹1,750</td>
-                        <td><span class="badge bg-danger">Cancelled</span></td>
-                        <td>
-                            <button class="btn btn-sm btn-outline-primary">View</button>
-                        </td>
-                    </tr>
+                    {% endfor %}
                 </tbody>
             </table>
         </div>
@@ -168,13 +136,26 @@
 <script>
     // Sales chart
     const ctx = document.getElementById('salesChart').getContext('2d');
+    
+    // Safely parse chart data with fallbacks
+    let chartLabels = {{ chart_labels|tojson|safe }};
+    let chartData = {{ chart_data|tojson|safe }};
+    
+    // Fallback data if variables are undefined or empty
+    if (!chartLabels || chartLabels.length === 0) {
+        chartLabels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'];
+    }
+    if (!chartData || chartData.length === 0) {
+        chartData = [0, 0, 0, 0, 0, 0, 0];
+    }
+    
     const salesChart = new Chart(ctx, {
         type: 'line',
         data: {
-            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'],
+            labels: chartLabels,
             datasets: [{
                 label: 'Sales (₹)',
-                data: [6500, 5900, 8000, 8100, 8600, 9250, 10500],
+                data: chartData,
                 borderColor: 'rgb(75, 192, 192)',
                 tension: 0.1,
                 fill: true,
