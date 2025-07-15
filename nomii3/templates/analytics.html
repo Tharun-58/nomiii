@@ -1,0 +1,41 @@
+<!-- templates/analytics.html -->
+{% extends "base.html" %}
+{% block title %}Analytics{% endblock %}
+{% block page_title %}Business Analytics{% endblock %}
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="card shadow-sm h-100">
+            <div class="card-header bg-white">
+                <h5 class="mb-0">Product Categories</h5>
+            </div>
+            <div class="card-body">
+                {{ category_chart|safe }}
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card shadow-sm h-100">
+            <div class="card-header bg-white">
+                <h5 class="mb-0">Stock Levels</h5>
+            </div>
+            <div class="card-body">
+                {{ stock_chart|safe }}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white">
+                <h5 class="mb-0">Sales by Product</h5>
+            </div>
+            <div class="card-body">
+                {{ sales_chart|safe }}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
