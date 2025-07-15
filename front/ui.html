@@ -1,4 +1,3 @@
-<!-- index.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -22,8 +21,9 @@
             --supplier: #7209b7;
             --delivery: #f72585;
             --farmer: #4CAF50;
+            --artisan: #a86a3d;  /* Earthy tone for artisans */
             --text-light: #f8f9fa;
-            --text-dark: #212529; /* This will be overridden for main content */
+            --text-dark: #212529; 
         }
 
         * {
@@ -36,7 +36,7 @@
         body {
             min-height: 100vh;
             overflow-x: hidden;
-            color: var(--text-light); /* Changed to light text for dark background */
+            color: var(--text-light);
             background-color: #1a1a1a; /* Matches VANTA.NET background */
         }
 
@@ -63,10 +63,10 @@
         }
 
         .container {
-            background: rgba(0, 0, 0, 0.6); /* Darker, semi-transparent background */
-            backdrop-filter: blur(15px); /* Slightly less blur for form */
+            background: rgba(0, 0, 0, 0); /* Made fully transparent */
+            backdrop-filter: blur(0px); /* Removed blur for full transparency */
             border-radius: 20px;
-            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.4); /* Darker shadow */
+            box-shadow: none; /* Removed box shadow */
             padding: 40px;
             width: 100%;
             max-width: 450px;
@@ -75,7 +75,7 @@
             position: relative;
             overflow: hidden;
             z-index: 1;
-            border: 1px solid rgba(255, 255, 255, 0.1); /* More subtle border */
+            border: 1px solid rgba(255, 255, 255, 0.05); /* Very subtle border */
         }
 
         .container::before {
@@ -87,7 +87,7 @@
             height: 200%;
             background: linear-gradient(
                 to bottom right,
-                rgba(67, 97, 238, 0.05), /* More subtle gradient overlay */
+                rgba(67, 97, 238, 0.02), /* Even more subtle gradient overlay */
                 rgba(255, 255, 255, 0)
             );
             transform: rotate(30deg);
@@ -217,7 +217,11 @@
         .farmer {
             --primary: var(--farmer);
         }
-
+        
+        .artisan {
+            --primary: var(--artisan);
+        }
+        
         .submit-btn {
             margin-top: 25px;
         }
@@ -249,12 +253,12 @@
             width: 100%;
             padding: 15px 20px;
             margin: 8px 0;
-            border: 2px solid rgba(255, 255, 255, 0.2); /* Lighter border for contrast */
+            border: 2px solid rgba(255, 255, 255, 0.2);
             border-radius: 50px;
             font-size: 15px;
             transition: all 0.3s;
             background: rgba(255, 255, 255, 0.05); /* Very subtle transparent background */
-            color: var(--text-light); /* Light text for input */
+            color: var(--text-light);
         }
 
         input:focus {
@@ -265,7 +269,7 @@
         }
 
         input::placeholder {
-            color: rgba(255, 255, 255, 0.5); /* Lighter placeholder text */
+            color: rgba(255, 255, 255, 0.5);
             font-size: 14px;
         }
 
@@ -280,7 +284,7 @@
             top: 50%;
             transform: translateY(-50%);
             cursor: pointer;
-            color: rgba(255, 255, 255, 0.5); /* Lighter icon color */
+            color: rgba(255, 255, 255, 0.5);
             transition: all 0.3s;
             background: none;
             border: none;
@@ -294,7 +298,7 @@
         /* ===== PASSWORD STRENGTH METER ===== */
         .password-strength {
             height: 5px;
-            background: rgba(255, 255, 255, 0.1); /* Darker meter background */
+            background: rgba(255, 255, 255, 0.1);
             border-radius: 3px;
             margin: 10px 0 5px;
             overflow: hidden;
@@ -334,7 +338,7 @@
 
         .password-feedback {
             font-size: 12px;
-            color: rgba(255, 255, 255, 0.6); /* Lighter feedback text */
+            color: rgba(255, 255, 255, 0.6);
             margin-top: 5px;
             text-align: left;
             min-height: 18px;
@@ -366,7 +370,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.9); /* Darker popup overlay */
+            background: rgba(0, 0, 0, 0.9);
             z-index: 1000;
             justify-content: center;
             align-items: center;
@@ -374,14 +378,14 @@
         }
 
         .popup-content {
-            background: rgba(0, 0, 0, 0.7); /* Darker, semi-transparent popup content */
+            background: rgba(0, 0, 0, 0.7);
             border-radius: 20px;
-            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5); /* Darker shadow */
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
             overflow: hidden;
             width: 90%;
             max-width: 400px;
             animation: slideUp 0.4s;
-            color: var(--text-light); /* Light text for popup content */
+            color: var(--text-light);
             border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
@@ -426,7 +430,7 @@
         }
 
         .login-id-display {
-            background: rgba(255, 255, 255, 0.05); /* Darker background for ID display */
+            background: rgba(255, 255, 255, 0.05); /* Very subtle transparent background */
             border-radius: 10px;
             padding: 15px;
             margin: 15px 0;
@@ -443,12 +447,12 @@
             text-align: left;
             flex-grow: 1;
             padding-right: 10px;
-            color: var(--text-light); /* Ensure ID text is light */
+            color: var(--text-light);
         }
 
         .copy-btn {
-            background: rgba(255, 255, 255, 0.1); /* Darker copy button */
-            color: var(--text-light); /* Light icon color */
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-light);
             width: 40px;
             height: 40px;
             border-radius: 50%;
@@ -468,18 +472,18 @@
             display: flex;
             align-items: center;
             gap: 10px;
-            background: rgba(255, 255, 255, 0.05); /* Darker tip background */
+            background: rgba(255, 255, 255, 0.05); /* Very subtle transparent background */
             padding: 10px 15px;
             border-radius: 8px;
             margin-top: 15px;
             font-size: 14px;
-            color: rgba(255, 255, 255, 0.7); /* Lighter tip text */
+            color: rgba(255, 255, 255, 0.7);
             border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         .password-tip i {
             font-size: 18px;
-            color: var(--warning); /* Keep warning icon color */
+            color: var(--warning);
         }
 
         .popup-footer {
@@ -503,8 +507,8 @@
             justify-content: center;
             cursor: pointer;
             transition: all 0.3s;
-            color: var(--text-light); /* Light icon color */
-            background: rgba(255, 255, 255, 0.05); /* Darker back button */
+            color: var(--text-light);
+            background: rgba(255, 255, 255, 0.05);
         }
 
         .back-btn:hover {
@@ -514,7 +518,7 @@
 
         .switch-mode {
             margin-top: 20px;
-            color: rgba(255, 255, 255, 0.7); /* Lighter switch mode text */
+            color: rgba(255, 255, 255, 0.7);
         }
 
         .switch-mode a {
@@ -615,6 +619,9 @@
                 <button onclick="showSignupSection('F')" class="role-btn farmer">
                     <i class="fas fa-tractor"></i> Continue as Farmer
                 </button>
+                <button onclick="showSignupSection('A')" class="role-btn artisan">
+                    <i class="fas fa-paint-brush"></i> Continue as Artisan
+                </button>
             </div>
         </div>
 
@@ -705,8 +712,8 @@
             scaleMobile: 1.00,
             color: 0xff6600, /* Warm glowing orange/red for the net */
             backgroundColor: 0x0a0a0a, /* Even darker background to enhance glow */
-            points: 28.00, /* Reduced points for a slightly less dense net */
-            maxDistance: 20.00, /* Reduced maxDistance for shorter connections, making it less expansive */
+            points: 20.00, /* Further reduced points */
+            maxDistance: 15.00, /* Further reduced maxDistance */
             spacing: 12.00 /* Spacing kept the same */
         });
 
@@ -766,7 +773,8 @@
                 'R': 'Retailer Signup',
                 'S': 'Supplier Signup',
                 'D': 'Delivery Partner Signup',
-                'F': 'Farmer Signup'
+                'F': 'Farmer Signup',
+                'A': 'Artisan Signup' // Added Artisan
             };
             document.getElementById('signupTitle').textContent = titles[role];
             
@@ -903,6 +911,57 @@
                         <div class="error-message" id="aadhaar-error"></div>
                     </div>
                     <div class="form-group">
+                        <input type="text" id="village" placeholder="Village / Area (min 3 characters)" required>
+                        <div class="error-message" id="village-error"></div>
+                    </div>
+                    <div class="form-group">
+                        <input type="text" id="landSize" placeholder="Landholding Size (e.g., 3 acres)" required>
+                        <div class="error-message" id="landSize-error"></div>
+                    </div>
+                    <div class="form-group">
+                        <input type="text" id="produce" placeholder="Type of Produce (e.g., Rice, Tomatoes)" required>
+                        <div class="error-message" id="produce-error"></div>
+                    </div>
+                    <div class="form-group">
+                        <input type="text" id="experience" placeholder="Experience (Years)" required>
+                        <div class="error-message" id="experience-error"></div>
+                    </div>
+                    <div class="form-group">
+                        <input type="text" id="regId" placeholder="Registration ID (Optional)">
+                    </div>
+                    <div class="form-group">
+                        <div class="password-container">
+                            <input type="password" id="password" placeholder="Create Password (8+ chars, incl. A-Z, a-z, 0-9, special)" required>
+                            <span class="toggle-password" onclick="togglePasswordVisibility('password')">
+                                <i class="far fa-eye"></i>
+                            </span>
+                        </div>
+                        <div class="error-message" id="password-error"></div>
+                        <div class="password-strength" id="password-strength"></div>
+                        <div class="password-feedback" id="password-feedback"></div>
+                    </div>
+                `,
+                'A': `
+                    <div class="form-group">
+                        <input type="text" id="mobile" placeholder="Mobile (10 digits starting with 6-9)" required>
+                        <div class="error-message" id="mobile-error"></div>
+                    </div>
+                    <div class="form-group">
+                        <input type="text" id="aadhaarLast4" placeholder="Last 4 Aadhaar digits (not 0000/1234)" required>
+                        <div class="error-message" id="aadhaar-error"></div>
+                    </div>
+                    <div class="form-group">
+                        <input type="text" id="craftType" placeholder="Craft Type (e.g., Pottery, Weaving)" required>
+                        <div class="error-message" id="craftType-error"></div>
+                    </div>
+                    <div class="form-group">
+                        <input type="text" id="region" placeholder="Region/City (min 3 characters)" required>
+                        <div class="error-message" id="region-error"></div>
+                    </div>
+                    <div class="form-group">
+                        <input type="text" id="groupId" placeholder="Artisan Group ID (Optional)">
+                    </div>
+                    <div class="form-group">
                         <div class="password-container">
                             <input type="password" id="password" placeholder="Create Password (8+ chars, incl. A-Z, a-z, 0-9, special)" required>
                             <span class="toggle-password" onclick="togglePasswordVisibility('password')">
@@ -915,239 +974,333 @@
                     </div>
                 `
             };
+            
             return fields[role];
         }
 
-        // ===== VALIDATION LOGIC =====
-        function attachValidationListeners() {
-            const form = document.getElementById('signupForm');
-            if (form) {
-                form.querySelectorAll('input').forEach(input => {
-                    input.addEventListener('input', () => validateField(input.id));
-                    input.addEventListener('blur', () => validateField(input.id)); // Validate on blur as well
-                });
+        // ===== PASSWORD VISIBILITY TOGGLE =====
+        function togglePasswordVisibility(fieldId) {
+            const passwordField = document.getElementById(fieldId);
+            // Corrected selector for toggleIcon
+            const toggleIcon = passwordField.nextElementSibling.querySelector('i'); 
+            
+            if (passwordField.type === 'password') {
+                passwordField.type = 'text';
+                toggleIcon.classList.replace('fa-eye', 'fa-eye-slash');
+            } else {
+                passwordField.type = 'password';
+                toggleIcon.classList.replace('fa-eye-slash', 'fa-eye');
             }
         }
 
-        function validateField(fieldId) {
-            let isValid = true;
-            const value = document.getElementById(fieldId).value;
-
-            switch (fieldId) {
-                case 'mobile':
-                    isValid = validateMobile(value, fieldId);
-                    break;
-                case 'aadhaarLast4':
-                    isValid = validateAadhaar(value, fieldId);
-                    break;
-                case 'gst':
-                    isValid = validateGST(value, fieldId);
-                    break;
-                case 'shopName':
-                case 'location':
-                case 'area':
-                case 'fullName':
-                    isValid = value.length >= 3;
-                    if (!isValid) showErrorMessage(fieldId + '-error', 'Minimum 3 characters required');
-                    else hideErrorMessage(fieldId + '-error');
-                    break;
-                case 'password':
-                    // Password strength check handles its own feedback
-                    break;
-                case 'loginId':
-                    isValid = value.trim().length > 0;
-                    if (!isValid) showErrorMessage(fieldId + '-error', 'Login ID cannot be empty');
-                    else hideErrorMessage(fieldId + '-error');
-                    break;
-                case 'loginPassword':
-                    isValid = value.trim().length > 0;
-                    if (!isValid) showErrorMessage(fieldId + '-error', 'Password cannot be empty');
-                    else hideErrorMessage(fieldId + '-error');
-                    break;
-            }
-            return isValid;
-        }
-
-        function validateMobile(mobile, fieldId) {
-            const isValid = /^[6-9]\d{9}$/.test(mobile);
-            if (!isValid) showErrorMessage(fieldId + '-error', 'Enter a valid 10-digit mobile number (starts with 6-9)');
-            else hideErrorMessage(fieldId + '-error');
-            return isValid;
-        }
-
-        function validateAadhaar(aadhaar, fieldId) {
-            const isValid = /^\d{4}$/.test(aadhaar) && aadhaar !== '0000' && aadhaar !== '1234';
-            if (!isValid) showErrorMessage(fieldId + '-error', 'Enter valid last 4 Aadhaar digits (not 0000/1234)');
-            else hideErrorMessage(fieldId + '-error');
-            return isValid;
-        }
-
-        function validateGST(gst, fieldId) {
-            const isValid = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/.test(gst);
-            if (!isValid) showErrorMessage(fieldId + '-error', 'Enter a valid GST/Udyam Number (e.g., 22ABCDE1234F1Z5)');
-            else hideErrorMessage(fieldId + '-error');
-            return isValid;
-        }
-
-        function validateLicense(license, fieldId) {
-            const isValid = /^[A-Z]{2}\d{2}[A-Z]{1,2}\d{4,7}$/.test(license); // Example: DL01-2023-1234567 or KA01A1234
-            if (!isValid) showErrorMessage(fieldId + '-error', 'Enter a valid License Number (e.g., DL01-2023-1234567)');
-            else hideErrorMessage(fieldId + '-error');
-            return isValid;
-        }
-
-
-        // ===== PASSWORD STRENGTH CHECK =====
+        // ===== PASSWORD STRENGTH CHECKER =====
         function checkPasswordStrength() {
             const password = document.getElementById('password').value;
             const strengthMeter = document.getElementById('password-strength');
             const feedback = document.getElementById('password-feedback');
             const errorElement = document.getElementById('password-error');
             
-            let strength = 0;
-            let feedbackText = '';
-
-            // Criteria checks
-            const hasLower = /[a-z]/.test(password);
-            const hasUpper = /[A-Z]/.test(password);
-            const hasNumber = /[0-9]/.test(password);
-            const hasSpecial = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password);
-
-            if (password.length >= 8) strength++;
-            if (hasLower && hasUpper) strength++;
-            if (hasNumber) strength++;
-            if (hasSpecial) strength++;
-
-            if (password.length === 0) {
-                strength = 0;
-                feedbackText = '';
+            if (!password) {
                 strengthMeter.style.display = 'none';
-                hideErrorMessage('password-error');
-            } else {
-                strengthMeter.style.display = 'block';
-                strengthMeter.setAttribute('data-strength', strength);
-
-                switch (strength) {
-                    case 0:
-                    case 1:
-                        feedbackText = 'Weak';
-                        errorElement.textContent = 'Password must be at least 8 characters, include uppercase, lowercase, number, and special character.';
-                        showErrorMessage('password-error', errorElement.textContent);
-                        break;
-                    case 2:
-                        feedbackText = 'Moderate';
-                        errorElement.textContent = 'Password needs more complexity (e.g., special characters, mixed case).';
-                        showErrorMessage('password-error', errorElement.textContent);
-                        break;
-                    case 3:
-                        feedbackText = 'Good';
-                        hideErrorMessage('password-error');
-                        break;
-                    case 4:
-                        feedbackText = 'Strong';
-                        hideErrorMessage('password-error');
-                        break;
+                if (feedback) feedback.textContent = '';
+                hideErrorMessage('password-error'); // Ensure error is hidden if password is empty
+                return;
+            }
+            
+            strengthMeter.style.display = 'block';
+            
+            // Calculate strength (0-4)
+            let strength = 0;
+            let messages = [];
+            
+            // Length check
+            if (password.length >= 8) strength++;
+            else messages.push("at least 8 characters");
+            
+            // Complexity checks
+            if (/[A-Z]/.test(password)) strength++;
+            else messages.push("one uppercase letter");
+            
+            if (/[a-z]/.test(password)) strength++;
+            else messages.push("one lowercase letter");
+            
+            if (/\d/.test(password)) strength++;
+            else messages.push("one number");
+            
+            if (/[\W_]/.test(password)) strength++;
+            else messages.push("one special character");
+            
+            // Common password check
+            const commonPasswords = ["password", "123456", "qwerty", "nomii123"];
+            if (commonPasswords.includes(password.toLowerCase())) {
+                strength = 0;
+                messages = ["too common - try something more unique"];
+            }
+            
+            // Sequential characters check
+            if (/(abc|123|xyz|987)/i.test(password)) {
+                strength = Math.max(0, strength - 1);
+                messages.push("avoid sequential characters");
+            }
+            
+            // Update UI
+            strengthMeter.setAttribute('data-strength', strength);
+            
+            if (feedback) {
+                if (strength < 4 && password.length > 0) {
+                    feedback.textContent = `Try adding: ${messages.join(", ")}`;
+                    feedback.style.color = strength < 2 ? '#e74c3c' : strength < 3 ? '#f39c12' : '#f1c40f';
+                    showErrorMessage('password-error', feedback.textContent); // Show error if not strong
+                } else if (password.length > 0) {
+                    feedback.textContent = 'Strong password!';
+                    feedback.style.color = '#2ecc71';
+                    hideErrorMessage('password-error'); // Hide error if strong
+                } else {
+                    feedback.textContent = '';
+                    hideErrorMessage('password-error');
                 }
             }
-            feedback.textContent = feedbackText;
         }
 
-        // ===== PASSWORD VISIBILITY TOGGLE =====
-        function togglePasswordVisibility(fieldId) {
-            const passwordField = document.getElementById(fieldId);
-            const toggleBtn = passwordField.nextElementSibling; // Assuming toggle button is immediately after input
-
-            if (passwordField.type === 'password') {
-                passwordField.type = 'text';
-                toggleBtn.querySelector('i').classList.remove('fa-eye');
-                toggleBtn.querySelector('i').classList.add('fa-eye-slash');
-            } else {
-                passwordField.type = 'password';
-                toggleBtn.querySelector('i').classList.remove('fa-eye-slash');
-                toggleBtn.querySelector('i').classList.add('fa-eye');
-            }
-        }
-
-        // ===== FORM SUBMISSION HANDLERS =====
+        // ===== SIGNUP PROCESS =====
         async function processSignup() {
             if (isProcessing) return;
-
-            const signupButton = document.querySelector('#signupSection .submit-btn');
-            toggleLoading(signupButton, true);
             isProcessing = true;
+            
+            const formData = collectFormData();
+            const validation = validateFormData(formData);
+            
+            if (validation.isValid) {
+                try {
+                    // Show loading state
+                    const submitBtn = document.querySelector('#signupSection button');
+                    submitBtn.classList.add('loading');
+                    
+                    // Simulate API call
+                    await new Promise(resolve => setTimeout(resolve, 2000));
+                    
+                    // In a real app, send data to server
+                    // const response = await fetch('/signup', {
+                    //     method: 'POST',
+                    //     headers: {
+                    //         'Content-Type': 'application/json',
+                    //     },
+                    //     body: JSON.stringify({
+                    //         role: currentRole,
+                    //         ...formData
+                    //     })
+                    // });
+                    // const result = await response.json();
 
-            let allFieldsValid = true;
-            const fieldsToValidate = ['mobile', 'password']; // Common fields
+                    // For simulation: assume success and generate a loginId
+                    const result = { success: true, loginId: generateLoginId(currentRole) };
 
-            if (currentRole === 'R') {
-                fieldsToValidate.push('aadhaarLast4', 'gst', 'shopName');
-            } else if (currentRole === 'S') {
-                fieldsToValidate.push('gst', 'location');
-            } else if (currentRole === 'D') {
-                fieldsToValidate.push('license', 'area');
-            } else if (currentRole === 'F') {
-                fieldsToValidate.push('fullName', 'aadhaarLast4');
-            }
 
-            for (const fieldId of fieldsToValidate) {
-                const inputElement = document.getElementById(fieldId);
-                if (inputElement && !validateField(fieldId)) {
-                    allFieldsValid = false;
+                    if (result.success) {
+                        // In a real app, you might download a file or redirect
+                        // window.location.href = `/download/${result.excelFile}`;
+                        showSuccessPopup(result.loginId);
+                    } else {
+                        // For simulation, if validation failed on server side (not covered by client-side)
+                        // showValidationErrors({ form: result.error }); 
+                        console.error("Server-side error simulation:", result.error);
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    showValidationErrors({ form: "Connection error. Please try again." });
+                } finally {
+                    isProcessing = false;
+                    const submitBtn = document.querySelector('#signupSection button');
+                    submitBtn.classList.remove('loading');
                 }
+            } else {
+                showValidationErrors(validation.errors);
+                isProcessing = false;
+            }
+        }
+
+        function collectFormData() {
+            const data = {};
+            const fields = {
+                'R': ['mobile', 'aadhaarLast4', 'gst', 'shopName', 'password'],
+                'S': ['mobile', 'gst', 'location', 'password'],
+                'D': ['mobile', 'license', 'area', 'password'],
+                'F': ['fullName', 'mobile', 'aadhaarLast4', 'village', 'landSize', 'produce', 'experience', 'regId', 'password'],
+                'A': ['mobile', 'aadhaarLast4', 'craftType', 'region', 'groupId', 'password']  // Added Artisan
+            };
+
+            fields[currentRole].forEach(field => {
+                const element = document.getElementById(field);
+                if (element) data[field] = element.value.trim();
+            });
+
+            return data;
+        }
+
+        // ===== VALIDATION =====
+        function validateFormData(data) {
+            const errors = {};
+            let isValid = true;
+
+            // Common validations
+            if (data.mobile && !/^[6-9]\d{9}$/.test(data.mobile)) {
+                errors.mobile = "Invalid mobile (10 digits starting with 6-9)";
+                isValid = false;
             }
 
-            // Also check password strength as a final validation for signup
-            const passwordField = document.getElementById('password');
-            if (passwordField) {
-                checkPasswordStrength(); // Update feedback and errors
+            // Password validation is handled by checkPasswordStrength, ensure it's strong enough
+            if (data.password) {
+                const passwordField = document.getElementById('password');
                 const strengthMeter = document.getElementById('password-strength');
-                if (strengthMeter && parseInt(strengthMeter.getAttribute('data-strength')) < 3) {
-                    allFieldsValid = false;
+                if (passwordField && strengthMeter && parseInt(strengthMeter.getAttribute('data-strength')) < 3) {
+                    errors.password = document.getElementById('password-feedback').textContent || "Password is not strong enough.";
+                    isValid = false;
+                }
+            } else {
+                 errors.password = "Password is required.";
+                 isValid = false;
+            }
+
+
+            // Role-specific validations
+            if (currentRole === 'R') {
+                if (!/^\d{4}$/.test(data.aadhaarLast4) || ['0000', '1234'].includes(data.aadhaarLast4)) {
+                    errors.aadhaar = "Invalid last 4 Aadhaar digits";
+                    isValid = false;
+                }
+                // Corrected GST regex based on common Indian GSTIN format
+                if (!/^\d{2}[A-Z]{5}\d{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/.test(data.gst)) { 
+                    errors.gst = "Invalid GST format (e.g., 22ABCDE1234F1Z5)";
+                    isValid = false;
+                }
+                if (!data.shopName || data.shopName.length < 3) {
+                    errors.shopName = "Shop name needs 3+ characters"; // Corrected ID to shopName-error
+                    isValid = false;
+                }
+            } 
+            else if (currentRole === 'S') {
+                if (!/^\d{2}[A-Z]{5}\d{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/.test(data.gst)) {
+                    errors.gst = "Invalid GSTIN format";
+                    isValid = false;
+                }
+                if (!data.location || data.location.length < 3) {
+                    errors.location = "Location needs 3+ characters";
+                    isValid = false;
+                }
+            } 
+            else if (currentRole === 'D') {
+                if (!/^[A-Z]{2}\d{2}[A-Z]{1,2}\d{4,7}$/.test(data.license)) { // Example: DL01-2023-1234567 or KA01A1234
+                    errors.license = "Invalid license format (e.g., DL01-2023-1234567)";
+                    isValid = false;
+                }
+                if (!data.area || data.area.length < 3) {
+                    errors.area = "Area needs 3+ characters";
+                    isValid = false;
+                }
+            }
+            else if (currentRole === 'F') {
+                // Farmer validation
+                if (!data.fullName || data.fullName.length < 3 || !/^[a-zA-Z\s]+$/.test(data.fullName)) {
+                    errors.fullName = "Full name must be at least 3 alphabetic characters"; // Corrected ID to fullName-error
+                    isValid = false;
+                }
+                if (!/^\d{4}$/.test(data.aadhaarLast4) || ['0000', '1111', '1234'].includes(data.aadhaarLast4)) {
+                    errors.aadhaar = "Invalid last 4 Aadhaar digits";
+                    isValid = false;
+                }
+                if (!data.village || data.village.length < 3) {
+                    errors.village = "Village/Area must be at least 3 characters";
+                    isValid = false;
+                }
+                if (!data.landSize) {
+                    errors.landSize = "Landholding size is required"; // Corrected ID to landSize-error
+                    isValid = false;
+                }
+                if (!data.produce) {
+                    errors.produce = "Produce is required";
+                    isValid = false;
+                }
+                if (!data.experience || !/^\d{1,2}$/.test(data.experience) || parseInt(data.experience) < 0 || parseInt(data.experience) > 99) {
+                    errors.experience = "Experience must be a number between 0 and 99";
+                    isValid = false;
+                }
+            }
+            else if (currentRole === 'A') {
+                // Artisan validation
+                if (!/^\d{4}$/.test(data.aadhaarLast4) || ['0000', '1111', '1234', '4321'].includes(data.aadhaarLast4)) {
+                    errors.aadhaar = "Invalid last 4 Aadhaar digits";
+                    isValid = false;
+                }
+                if (!data.craftType || data.craftType.length < 3) {
+                    errors.craftType = "Craft type needs 3+ characters"; // Corrected ID to craftType-error
+                    isValid = false;
+                }
+                if (!data.region || data.region.length < 3) {
+                    errors.region = "Region needs 3+ characters";
+                    isValid = false;
+                }
+                if (data.groupId && !/^[a-zA-Z0-9]+$/.test(data.groupId)) {
+                    errors.groupId = "Group ID must be alphanumeric"; // Corrected ID to groupId-error
+                    isValid = false;
                 }
             }
 
-
-            if (allFieldsValid) {
-                // Simulate API call
-                await new Promise(resolve => setTimeout(resolve, 2000));
-                const loginId = generateLoginId(currentRole);
-                document.getElementById('generatedLoginId').textContent = loginId;
-                showElement('loginIdPopup');
-            }
-
-            toggleLoading(signupButton, false);
-            isProcessing = false;
+            return { isValid, errors };
         }
 
-        async function processLogin() {
-            if (isProcessing) return;
+        function showValidationErrors(errors) {
+            // Reset all errors
+            document.querySelectorAll('.error-message').forEach(el => {
+                el.textContent = '';
+                el.style.display = 'none';
+            });
+            document.querySelectorAll('input').forEach(el => {
+                el.classList.remove('error');
+            });
 
-            const loginButton = document.querySelector('#loginSection .submit-btn');
-            toggleLoading(loginButton, true);
-            isProcessing = true;
-
-            let allFieldsValid = true;
-            if (!validateField('loginId')) allFieldsValid = false;
-            if (!validateField('loginPassword')) allFieldsValid = false;
-
-            if (allFieldsValid) {
-                // Simulate API call
-                await new Promise(resolve => setTimeout(resolve, 2000));
-                // In a real app, you'd verify credentials here
-                // For this example, we'll just log success
-                console.log('Login successful!');
-                // You might redirect or show a success message here
+            // Show new errors
+            for (const [field, message] of Object.entries(errors)) {
+                // Corrected error element ID construction
+                const errorElement = document.getElementById(field + '-error'); 
+                const inputElement = document.getElementById(field);
+                
+                if (errorElement && inputElement) {
+                    errorElement.textContent = message;
+                    errorElement.style.display = 'block';
+                    inputElement.classList.add('error');
+                    // Only focus if it's the first error
+                    if (Object.keys(errors).indexOf(field) === 0) { 
+                        inputElement.focus();
+                    }
+                }
             }
-
-            toggleLoading(loginButton, false);
-            isProcessing = false;
         }
 
-        // ===== LOGIN ID GENERATION & COPY =====
+        // ===== LOGIN ID GENERATION =====
         function generateLoginId(role) {
-            const timestamp = Date.now().toString().slice(-6); // Last 6 digits of timestamp
-            const random = Math.floor(1000 + Math.random() * 9000); // 4 random digits
-            return `${role}${timestamp}${random}`;
+            const now = new Date();
+            const timestamp = now.getFullYear() + 
+                             String(now.getMonth() + 1).padStart(2, '0') + 
+                             String(now.getDate()).padStart(2, '0') + 
+                             String(now.getHours()).padStart(2, '0') + 
+                             String(now.getMinutes()).padStart(2, '0') + 
+                             String(now.getSeconds()).padStart(2, '0');
+            return `NOMII-${role}-${timestamp}`;
+        }
+
+        // ===== POPUP MANAGEMENT =====
+        function showSuccessPopup(loginId) {
+            document.getElementById('generatedLoginId').textContent = loginId;
+            document.getElementById('loginIdPopup').style.display = 'flex';
+        }
+
+        function closePopup() {
+            document.getElementById('loginIdPopup').style.display = 'none';
+        }
+
+        function goToLogin() {
+            closePopup();
+            showLoginSection();
         }
 
         function copyLoginId() {
@@ -1163,37 +1316,136 @@
             document.body.removeChild(tempInput);
 
             // Provide visual feedback
-            const copyBtn = document.querySelector('.copy-btn');
-            const originalIcon = copyBtn.innerHTML;
-            copyBtn.innerHTML = '<i class="fas fa-check"></i>';
+            const copyBtn = document.querySelector('.copy-btn i');
+            const originalIconClass = copyBtn.className;
+            copyBtn.classList.replace('fa-copy', 'fa-check');
+            
             setTimeout(() => {
-                copyBtn.innerHTML = originalIcon;
+                copyBtn.className = originalIconClass; // Revert to original class
             }, 1500);
         }
 
-        function goToLogin() {
-            hideElement('loginIdPopup');
-            showLoginSection();
-            // Optionally pre-fill login ID if desired
-            // document.getElementById('loginId').value = document.getElementById('generatedLoginId').textContent;
+        // ===== LOGIN SYSTEM =====
+        function showLoginSection() {
+            document.getElementById('roleSelection').style.display = 'none';
+            document.getElementById('signupSection').style.display = 'none';
+            document.getElementById('loginSection').style.display = 'block';
+            document.getElementById('loginId').value = '';
+            document.getElementById('loginPassword').value = '';
+            
+            // Clear any errors
+            const error = document.querySelector('#loginSection .login-error');
+            if (error) error.remove();
         }
 
-        // ===== RIPPLE EFFECT FOR BUTTONS =====
-        document.querySelectorAll('button').forEach(button => {
-            button.addEventListener('click', function(e) {
-                const x = e.clientX - e.target.getBoundingClientRect().left;
-                const y = e.clientY - e.target.getBoundingClientRect().top;
+        async function processLogin() {
+            if (isProcessing) return;
+            isProcessing = true;
+            
+            const loginId = document.getElementById('loginId').value.trim();
+            const password = document.getElementById('loginPassword').value;
+            
+            // Basic client-side validation for login
+            let allFieldsValid = true;
+            if (!loginId) {
+                showErrorMessage('loginId-error', 'Login ID cannot be empty');
+                allFieldsValid = false;
+            } else {
+                hideErrorMessage('loginId-error');
+            }
+            if (!password) {
+                showErrorMessage('loginPassword-error', 'Password cannot be empty');
+                allFieldsValid = false;
+            } else {
+                hideErrorMessage('loginPassword-error');
+            }
 
-                const ripple = document.createElement('span');
-                ripple.classList.add('ripple');
-                ripple.style.left = x + 'px';
-                ripple.style.top = y + 'px';
-                this.appendChild(ripple);
+            if (!allFieldsValid) {
+                isProcessing = false;
+                return;
+            }
 
-                ripple.addEventListener('animationend', function() {
-                    this.remove();
-                });
+
+            try {
+                // Show loading state
+                const loginBtn = document.querySelector('#loginSection button');
+                loginBtn.classList.add('loading');
+                
+                // Simulate API call
+                await new Promise(resolve => setTimeout(resolve, 2000));
+                
+                // In a real app, send credentials to server and verify
+                // const response = await fetch('/login', {
+                //     method: 'POST',
+                //     headers: {
+                //         'Content-Type': 'application/json',
+                //     },
+                //     body: JSON.stringify({
+                //         loginId,
+                //         password
+                //     })
+                // });
+                // const result = await response.json();
+
+                // For simulation: simple check for "valid" credentials
+                const simulatedValidId = "NOMII-R-20231026123456"; // Example valid ID
+                const simulatedValidPassword = "Password123!"; // Example valid password
+
+                const result = { success: (loginId === simulatedValidId && password === simulatedValidPassword) };
+
+
+                if (result.success) {
+                    // Use a message box instead of alert()
+                    const successMessageBox = document.createElement('div');
+                    successMessageBox.style.cssText = `
+                        position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+                        background-color: #2ecc71; color: white; padding: 20px; border-radius: 10px;
+                        box-shadow: 0 5px 15px rgba(0,0,0,0.3); z-index: 1001; text-align: center;
+                    `;
+                    successMessageBox.textContent = 'Login successful! Redirecting... (simulated)';
+                    document.body.appendChild(successMessageBox);
+                    setTimeout(() => {
+                        successMessageBox.remove();
+                        // window.location.href = '/dashboard'; // In a real app, redirect here
+                    }, 2000);
+                } else {
+                    showLoginError("Invalid Login ID or Password.");
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showLoginError('Connection error. Please try again.');
+            } finally {
+                isProcessing = false;
+                const loginBtn = document.querySelector('#loginSection button');
+                loginBtn.classList.remove('loading');
+            }
+        }
+
+        function showLoginError(message) {
+            let errorElement = document.querySelector('#loginSection .login-error');
+            
+            if (!errorElement) {
+                errorElement = document.createElement('div');
+                errorElement.className = 'login-error text-center text-red-500 mt-4 text-sm'; /* Added Tailwind classes for styling */
+                document.querySelector('#loginSection').appendChild(errorElement);
+            }
+            
+            errorElement.textContent = message;
+            errorElement.style.display = 'block'; // Ensure it's visible
+        }
+
+        // Initialize event listeners when DOM is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add click event for back buttons
+            document.querySelectorAll('.back-btn').forEach(btn => {
+                btn.addEventListener('click', showRoleSelection);
             });
+
+            // Add click event for copy login ID button
+            const copyBtn = document.querySelector('.copy-btn');
+            if (copyBtn) {
+                copyBtn.addEventListener('click', copyLoginId);
+            }
         });
     </script>
 </body>
