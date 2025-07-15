@@ -1,0 +1,1405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nomii - Delivery Partner Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary: #3498db;
+            --success: #2ecc71;
+            --warning: #f39c12;
+            --danger: #e74c3c;
+            --dark: #2c3e50;
+            --light: #ecf0f1;
+            --sidebar: #1e2a38;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .container {
+            display: flex;
+            flex: 1;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            width: 250px;
+            background-color: var(--sidebar);
+            color: white;
+            padding: 20px 0;
+            height: 100vh;
+            position: fixed;
+            overflow-y: auto;
+        }
+
+        .logo {
+            padding: 0 20px 20px;
+            border-bottom: 1px solid #34495e;
+            margin-bottom: 20px;
+        }
+
+        .logo h1 {
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .logo-icon {
+            font-size: 1.8rem;
+            margin-right: 10px;
+        }
+
+        .nav-item {
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .nav-item:hover {
+            background-color: #34495e;
+        }
+
+        .nav-item.active {
+            background-color: var(--primary);
+        }
+
+        .nav-icon {
+            font-size: 1.2rem;
+            margin-right: 10px;
+            width: 24px;
+            text-align: center;
+        }
+
+        /* Main Content Styles */
+        .main-content {
+            flex: 1;
+            margin-left: 250px;
+            padding: 20px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            background-color: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .language-switch button {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-left: 10px;
+            font-weight: bold;
+        }
+
+        /* Dashboard Grid */
+        .dashboard {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .metric-card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            text-align: center;
+            transition: transform 0.3s;
+        }
+
+        .metric-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .metric-card h3 {
+            font-size: 1rem;
+            margin-bottom: 10px;
+            color: #7f8c8d;
+        }
+
+        .metric-card p {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: var(--dark);
+        }
+
+        .card-success {
+            border-top: 4px solid var(--success);
+        }
+
+        .card-warning {
+            border-top: 4px solid var(--warning);
+        }
+
+        .card-danger {
+            border-top: 4px solid var(--danger);
+        }
+
+        .card-primary {
+            border-top: 4px solid var(--primary);
+        }
+
+        /* Charts and Forms */
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .chart-container {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .delivery-form {
+            background: white;
+            border-radius: 8px;
+            padding: 25px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .form-title {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .form-title h2 {
+            margin-left: 10px;
+        }
+
+        .voice-input {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+        }
+
+        #mic-button {
+            font-size: 1.8rem;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            margin-right: 15px;
+            transition: all 0.3s;
+        }
+
+        #mic-button.listening {
+            background: var(--danger);
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        .voice-status {
+            flex: 1;
+        }
+
+        #delivery-form input,
+        #delivery-form select,
+        #delivery-form button {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+
+        #delivery-form button {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.3s;
+            padding: 14px;
+        }
+
+        #delivery-form button:hover {
+            background-color: #2980b9;
+        }
+
+        .otp-container {
+            display: flex;
+            gap: 10px;
+        }
+
+        .otp-container input {
+            flex: 2;
+        }
+
+        .otp-container button {
+            flex: 1;
+            background-color: var(--warning);
+        }
+
+        /* Delivery Log */
+        .delivery-log {
+            background: white;
+            border-radius: 8px;
+            padding: 25px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #f8f9fa;
+            font-weight: bold;
+        }
+
+        .status {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            display: inline-block;
+        }
+
+        .status.on-time {
+            background-color: rgba(46, 204, 113, 0.2);
+            color: var(--success);
+        }
+
+        .status.delayed {
+            background-color: rgba(243, 156, 18, 0.2);
+            color: var(--warning);
+        }
+
+        .status.failed {
+            background-color: rgba(231, 76, 60, 0.2);
+            color: var(--danger);
+        }
+
+        /* AI Alerts */
+        .ai-alerts {
+            background: white;
+            border-radius: 8px;
+            padding: 25px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .alert {
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+        }
+
+        .alert.warning {
+            background-color: rgba(243, 156, 18, 0.15);
+            border-left: 4px solid var(--warning);
+        }
+
+        .alert.info {
+            background-color: rgba(52, 152, 219, 0.15);
+            border-left: 4px solid var(--primary);
+        }
+
+        .alert-icon {
+            font-size: 1.5rem;
+            margin-right: 15px;
+        }
+
+        /* New pages */
+        .page {
+            display: none;
+        }
+        
+        .page.active {
+            display: block;
+        }
+        
+        /* Analytics page styles */
+        .analytics-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .analytics-card {
+            background: white;
+            border-radius: 8px;
+            padding: 25px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        .analytics-card h3 {
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .stat-row:last-child {
+            border-bottom: none;
+        }
+        
+        .stat-label {
+            font-weight: 500;
+            color: #555;
+        }
+        
+        .stat-value {
+            font-weight: bold;
+            color: var(--dark);
+        }
+        
+        /* Settings page styles */
+        .settings-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        .settings-card {
+            background: white;
+            border-radius: 8px;
+            padding: 25px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        .settings-card h3 {
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+        
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+        
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+        }
+        
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 34px;
+        }
+        
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        
+        input:checked + .slider {
+            background-color: var(--primary);
+        }
+        
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+        
+        /* Support page styles */
+        .support-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        .support-card {
+            background: white;
+            border-radius: 8px;
+            padding: 25px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        .support-card h3 {
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .contact-info {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .contact-icon {
+            font-size: 1.5rem;
+            margin-right: 15px;
+            color: var(--primary);
+        }
+        
+        .contact-details h4 {
+            margin-bottom: 5px;
+        }
+        
+        .contact-details p {
+            color: #666;
+        }
+        
+        .faq-item {
+            margin-bottom: 20px;
+        }
+        
+        .resource-item {
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        /* Responsive design */
+        @media (max-width: 1200px) {
+            .dashboard {
+                grid-template-columns: 1fr 1fr;
+            }
+            
+            .grid-2 {
+                grid-template-columns: 1fr;
+            }
+            
+            .analytics-grid,
+            .settings-grid,
+            .support-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 70px;
+            }
+            
+            .main-content {
+                margin-left: 70px;
+            }
+            
+            .logo h1 span {
+                display: none;
+            }
+            
+            .nav-item span {
+                display: none;
+            }
+            
+            .nav-icon {
+                margin-right: 0;
+            }
+            
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="logo">
+                <h1><span class="logo-icon">🚚</span> <span>Nomii Delivery</span></h1>
+            </div>
+            
+            <div class="nav-item active" data-target="dashboard-page">
+                <span class="nav-icon">📊</span>
+                <span>Dashboard</span>
+            </div>
+            <div class="nav-item" data-target="analytics-page">
+                <span class="nav-icon">📈</span>
+                <span>Analytics</span>
+            </div>
+            <div class="nav-item" data-target="settings-page">
+                <span class="nav-icon">⚙️</span>
+                <span>Settings</span>
+            </div>
+            <div class="nav-item" data-target="support-page">
+                <span class="nav-icon">🆘</span>
+                <span>Support</span>
+            </div>
+            <div class="nav-item">
+                <span class="nav-icon">📦</span>
+                <span>Deliveries</span>
+            </div>
+            <div class="nav-item">
+                <span class="nav-icon">🔔</span>
+                <span>Alerts</span>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="header">
+                <h2 id="page-title">Delivery Partner Dashboard</h2>
+                <div class="language-switch">
+                    <button id="lang-en">English</button>
+                    <button id="lang-ta">தமிழ்</button>
+                </div>
+            </div>
+            
+            <!-- Dashboard Page -->
+            <div id="dashboard-page" class="page active">
+                <!-- Metrics Dashboard -->
+                <div class="dashboard">
+                    <div class="metric-card card-success">
+                        <h3>Total Deliveries</h3>
+                        <p id="total-deliveries">142</p>
+                    </div>
+                    <div class="metric-card card-primary">
+                        <h3>Success Rate</h3>
+                        <p id="success-rate">92%</p>
+                    </div>
+                    <div class="metric-card card-warning">
+                        <h3>On-Time %</h3>
+                        <p id="on-time-rate">85%</p>
+                    </div>
+                    <div class="metric-card card-danger">
+                        <h3>Avg. Delay</h3>
+                        <p id="avg-delay">12 min</p>
+                    </div>
+                </div>
+                
+                <!-- Charts and Form -->
+                <div class="grid-2">
+                    <div class="chart-container">
+                        <h3>Weekly Delivery Performance</h3>
+                        <canvas id="delivery-chart"></canvas>
+                    </div>
+                    
+                    <div class="delivery-form">
+                        <div class="form-title">
+                            <div class="nav-icon">➕</div>
+                            <h2>Add New Delivery</h2>
+                        </div>
+                        
+                        <div class="voice-input">
+                            <button id="mic-button">🎤</button>
+                            <div class="voice-status" id="voice-status">Click mic to speak (English)</div>
+                        </div>
+                        
+                        <form id="delivery-form">
+                            <input type="text" id="delivery-id" placeholder="Delivery ID (Auto)" readonly>
+                            <input type="text" id="product" placeholder="Product" required>
+                            <input type="text" id="supplier" placeholder="Supplier" required>
+                            <select id="zone" required>
+                                <option value="">Select Delivery Zone</option>
+                                <option value="North Chennai">North Chennai</option>
+                                <option value="South Chennai">South Chennai</option>
+                                <option value="West Chennai">West Chennai</option>
+                                <option value="East Chennai">East Chennai</option>
+                                <option value="Central Chennai">Central Chennai</option>
+                            </select>
+                            <input type="datetime-local" id="scheduled-time" required>
+                            
+                            <div class="otp-container">
+                                <input type="text" id="otp-display" placeholder="OTP" readonly>
+                                <button type="button" id="generate-otp">Generate OTP</button>
+                            </div>
+                            
+                            <input type="text" id="otp-input" placeholder="Enter OTP" required>
+                            <button type="submit">Submit Delivery</button>
+                        </form>
+                    </div>
+                </div>
+                
+                <!-- Delivery Log -->
+                <div class="delivery-log">
+                    <h2>Recent Deliveries</h2>
+                    <table id="delivery-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Product</th>
+                                <th>Supplier</th>
+                                <th>Zone</th>
+                                <th>Time</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>NOMIID142</td>
+                                <td>Rice Bags (25kg)</td>
+                                <td>Agro Foods</td>
+                                <td>North Chennai</td>
+                                <td>2023-10-15 14:32</td>
+                                <td><span class="status on-time">On Time</span></td>
+                            </tr>
+                            <tr>
+                                <td>NOMIID141</td>
+                                <td>Medicines</td>
+                                <td>Medico Pharma</td>
+                                <td>Central Chennai</td>
+                                <td>2023-10-15 13:15</td>
+                                <td><span class="status delayed">Delayed</span></td>
+                            </tr>
+                            <tr>
+                                <td>NOMIID140</td>
+                                <td>Electronics</td>
+                                <td>Tech World</td>
+                                <td>South Chennai</td>
+                                <td>2023-10-15 11:45</td>
+                                <td><span class="status on-time">On Time</span></td>
+                            </tr>
+                            <tr>
+                                <td>NOMIID139</td>
+                                <td>Frozen Foods</td>
+                                <td>Cold Chain Co</td>
+                                <td>West Chennai</td>
+                                <td>2023-10-14 17:20</td>
+                                <td><span class="status delayed">Delayed</span></td>
+                            </tr>
+                            <tr>
+                                <td>NOMIID138</td>
+                                <td>Office Supplies</td>
+                                <td>Corporate Solutions</td>
+                                <td>East Chennai</td>
+                                <td>2023-10-14 15:45</td>
+                                <td><span class="status on-time">On Time</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- AI Alerts -->
+                <div class="ai-alerts">
+                    <h2>AI Performance Alerts</h2>
+                    <div id="ai-alerts-container">
+                        <div class="alert warning">
+                            <div class="alert-icon">⚠️</div>
+                            <div>
+                                <strong>Zone Delay Alert</strong>
+                                <p>You've had 3 delayed deliveries in North Chennai zone this week</p>
+                            </div>
+                        </div>
+                        <div class="alert info">
+                            <div class="alert-icon">ℹ️</div>
+                            <div>
+                                <strong>Supplier Performance</strong>
+                                <p>Deliveries from Agro Foods have 95% on-time rate this month</p>
+                            </div>
+                        </div>
+                        <div class="alert warning">
+                            <div class="alert-icon">⚠️</div>
+                            <div>
+                                <strong>Traffic Advisory</strong>
+                                <p>Heavy traffic expected in Central Chennai between 4-6 PM</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Analytics Page -->
+            <div id="analytics-page" class="page">
+                <div class="analytics-grid">
+                    <div class="analytics-card">
+                        <h3>Performance Overview</h3>
+                        <canvas id="performance-chart"></canvas>
+                    </div>
+                    
+                    <div class="analytics-card">
+                        <h3>Zone Performance</h3>
+                        <canvas id="zone-chart"></canvas>
+                    </div>
+                    
+                    <div class="analytics-card">
+                        <h3>Supplier Statistics</h3>
+                        <div class="stat-row">
+                            <span class="stat-label">Top Performing Supplier</span>
+                            <span class="stat-value">Agro Foods</span>
+                        </div>
+                        <div class="stat-row">
+                            <span class="stat-label">Average On-Time Rate</span>
+                            <span class="stat-value">92.4%</span>
+                        </div>
+                        <div class="stat-row">
+                            <span class="stat-label">Most Delayed Supplier</span>
+                            <span class="stat-value">Cold Chain Co</span>
+                        </div>
+                        <div class="stat-row">
+                            <span class="stat-label">Average Delay Time</span>
+                            <span class="stat-value">18.3 min</span>
+                        </div>
+                    </div>
+                    
+                    <div class="analytics-card">
+                        <h3>Delivery Trends</h3>
+                        <div class="stat-row">
+                            <span class="stat-label">Weekly Deliveries</span>
+                            <span class="stat-value">142 (+12%)</span>
+                        </div>
+                        <div class="stat-row">
+                            <span class="stat-label">On-Time Improvement</span>
+                            <span class="stat-value">+7.2%</span>
+                        </div>
+                        <div class="stat-row">
+                            <span class="stat-label">Peak Delivery Hours</span>
+                            <span class="stat-value">10 AM - 2 PM</span>
+                        </div>
+                        <div class="stat-row">
+                            <span class="stat-label">Success Rate Trend</span>
+                            <span class="stat-value">⬆️ Improving</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Settings Page -->
+            <div id="settings-page" class="page">
+                <div class="settings-grid">
+                    <div class="settings-card">
+                        <h3>Account Settings</h3>
+                        <div class="form-group">
+                            <label>Name</label>
+                            <input type="text" value="Rajesh Kumar">
+                        </div>
+                        <div class="form-group">
+                            <label>Email</label>
+                            <input type="email" value="rajesh@nomii.com">
+                        </div>
+                        <div class="form-group">
+                            <label>Phone Number</label>
+                            <input type="tel" value="+91 9876543210">
+                        </div>
+                        <div class="form-group">
+                            <label>Language Preference</label>
+                            <select>
+                                <option>English</option>
+                                <option selected>Tamil</option>
+                                <option>Hindi</option>
+                                <option>Telugu</option>
+                            </select>
+                        </div>
+                        <button style="margin-top: 20px;">Update Profile</button>
+                    </div>
+                    
+                    <div class="settings-card">
+                        <h3>Notification Preferences</h3>
+                        <div class="form-group">
+                            <label>Delivery Updates</label>
+                            <label class="switch">
+                                <input type="checkbox" checked>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        <div class="form-group">
+                            <label>Performance Alerts</label>
+                            <label class="switch">
+                                <input type="checkbox" checked>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        <div class="form-group">
+                            <label>Traffic Advisories</label>
+                            <label class="switch">
+                                <input type="checkbox" checked>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        <div class="form-group">
+                            <label>Promotional Offers</label>
+                            <label class="switch">
+                                <input type="checkbox">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="settings-card">
+                        <h3>Security</h3>
+                        <div class="form-group">
+                            <label>Change Password</label>
+                            <input type="password" placeholder="Current Password">
+                            <input type="password" placeholder="New Password" style="margin-top: 10px;">
+                            <input type="password" placeholder="Confirm Password" style="margin-top: 10px;">
+                        </div>
+                        <button>Update Password</button>
+                    </div>
+                    
+                    <div class="settings-card">
+                        <h3>App Preferences</h3>
+                        <div class="form-group">
+                            <label>Theme</label>
+                            <select>
+                                <option>Light</option>
+                                <option selected>Dark</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Default Zone</label>
+                            <select>
+                                <option>North Chennai</option>
+                                <option>South Chennai</option>
+                                <option>West Chennai</option>
+                                <option>East Chennai</option>
+                                <option selected>Central Chennai</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Auto-generate OTP</label>
+                            <label class="switch">
+                                <input type="checkbox" checked>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        <div class="form-group">
+                            <label>Voice Command Language</label>
+                            <select>
+                                <option>English</option>
+                                <option selected>Tamil</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Support Page -->
+            <div id="support-page" class="page">
+                <div class="support-grid">
+                    <div class="support-card">
+                        <h3>Contact Support</h3>
+                        <div class="contact-info">
+                            <div class="contact-icon">📞</div>
+                            <div class="contact-details">
+                                <h4>Phone Support</h4>
+                                <p>+91 1800 123 4567 (24/7)</p>
+                            </div>
+                        </div>
+                        <div class="contact-info">
+                            <div class="contact-icon">✉️</div>
+                            <div class="contact-details">
+                                <h4>Email Support</h4>
+                                <p>support@nomii.com</p>
+                            </div>
+                        </div>
+                        <div class="contact-info">
+                            <div class="contact-icon">💬</div>
+                            <div class="contact-details">
+                                <h4>Live Chat</h4>
+                                <p>Available Mon-Fri, 9 AM - 6 PM</p>
+                            </div>
+                        </div>
+                        <div class="contact-info">
+                            <div class="contact-icon">📍</div>
+                            <div class="contact-details">
+                                <h4>Office Address</h4>
+                                <p>No. 123, GST Road, Chennai, Tamil Nadu 600001</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="support-card">
+                        <h3>Submit a Request</h3>
+                        <div class="form-group">
+                            <label>Subject</label>
+                            <input type="text" placeholder="What do you need help with?">
+                        </div>
+                        <div class="form-group">
+                            <label>Description</label>
+                            <textarea style="width: 100%; height: 150px; padding: 12px; border: 1px solid #ddd; border-radius: 4px; font-size: 1rem;" placeholder="Please describe your issue in detail..."></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>Priority</label>
+                            <select>
+                                <option>Low</option>
+                                <option selected>Medium</option>
+                                <option>High</option>
+                                <option>Urgent</option>
+                            </select>
+                        </div>
+                        <button>Submit Request</button>
+                    </div>
+                    
+                    <div class="support-card">
+                        <h3>FAQ</h3>
+                        <div class="faq-item">
+                            <h4>How do I reset my password?</h4>
+                            <p>Go to Settings > Security > Change Password. Enter your current password and set a new one.</p>
+                        </div>
+                        <div class="faq-item">
+                            <h4>What should I do if a delivery is delayed?</h4>
+                            <p>Contact the customer immediately to inform them. You can also notify support for assistance with traffic or route issues.</p>
+                        </div>
+                        <div class="faq-item">
+                            <h4>How are performance metrics calculated?</h4>
+                            <p>Metrics are calculated based on actual delivery times compared to scheduled times, customer feedback, and successful deliveries.</p>
+                        </div>
+                        <div class="faq-item">
+                            <h4>Can I change my delivery zone?</h4>
+                            <p>Yes, you can change your preferred zone in Settings > App Preferences > Default Zone.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="support-card">
+                        <h3>Resources</h3>
+                        <div class="resource-item">
+                            <h4>📘 Delivery Partner Handbook</h4>
+                            <p>Complete guide to using the Nomii platform</p>
+                        </div>
+                        <div class="resource-item">
+                            <h4>📹 Training Videos</h4>
+                            <p>Video tutorials for new features</p>
+                        </div>
+                        <div class="resource-item">
+                            <h4>📊 Performance Tips</h4>
+                            <p>Strategies to improve your delivery metrics</p>
+                        </div>
+                        <div class="resource-item">
+                            <h4>🗺️ Zone Maps</h4>
+                            <p>Detailed maps of all delivery zones</p>
+                        </div>
+                        <button style="margin-top: 20px;">Download All Resources</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // DOM Elements
+            const deliveryForm = document.getElementById('delivery-form');
+            const micButton = document.getElementById('mic-button');
+            const voiceStatus = document.getElementById('voice-status');
+            const generateOTP = document.getElementById('generate-otp');
+            const otpDisplay = document.getElementById('otp-display');
+            const langEn = document.getElementById('lang-en');
+            const langTa = document.getElementById('lang-ta');
+            const deliveryIdField = document.getElementById('delivery-id');
+            const productField = document.getElementById('product');
+            const supplierField = document.getElementById('supplier');
+            const zoneField = document.getElementById('zone');
+            const scheduledTimeField = document.getElementById('scheduled-time');
+            const otpInput = document.getElementById('otp-input');
+            const pageTitle = document.getElementById('page-title');
+            
+            // Navigation Elements
+            const navItems = document.querySelectorAll('.nav-item');
+            const pages = document.querySelectorAll('.page');
+            
+            // State variables
+            let currentLanguage = 'en-IN';
+            let recognition = null;
+            let generatedOTP = null;
+            let deliveryChart = null;
+            let performanceChart = null;
+            let zoneChart = null;
+            
+            // Initialize dashboard
+            initDashboard();
+            
+            // Navigation handling
+            navItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    // Remove active class from all nav items
+                    navItems.forEach(nav => nav.classList.remove('active'));
+                    
+                    // Add active class to clicked nav item
+                    this.classList.add('active');
+                    
+                    // Get target page
+                    const target = this.getAttribute('data-target');
+                    
+                    // Hide all pages
+                    pages.forEach(page => {
+                        page.classList.remove('active');
+                    });
+                    
+                    // Show target page
+                    document.getElementById(target).classList.add('active');
+                    
+                    // Update page title
+                    updatePageTitle(target);
+                    
+                    // Initialize charts for analytics page
+                    if(target === 'analytics-page' && !performanceChart) {
+                        initAnalyticsCharts();
+                    }
+                });
+            });
+            
+            // Update page title based on active page
+            function updatePageTitle(target) {
+                switch(target) {
+                    case 'dashboard-page':
+                        pageTitle.textContent = 'Delivery Partner Dashboard';
+                        break;
+                    case 'analytics-page':
+                        pageTitle.textContent = 'Delivery Analytics';
+                        break;
+                    case 'settings-page':
+                        pageTitle.textContent = 'Account Settings';
+                        break;
+                    case 'support-page':
+                        pageTitle.textContent = 'Support Center';
+                        break;
+                    default:
+                        pageTitle.textContent = 'Nomii Delivery';
+                }
+            }
+            
+            // Language switching
+            langEn.addEventListener('click', () => {
+                currentLanguage = 'en-IN';
+                voiceStatus.textContent = 'Click mic to speak (English)';
+            });
+            
+            langTa.addEventListener('click', () => {
+                currentLanguage = 'ta-IN';
+                voiceStatus.textContent = 'மைக்ரோஃபோனைக் கிளிக் செய்து பேசுங்கள் (தமிழ்)';
+            });
+            
+            // OTP Generation
+            generateOTP.addEventListener('click', () => {
+                generatedOTP = Math.floor(1000 + Math.random() * 9000);
+                otpDisplay.value = generatedOTP;
+            });
+            
+            // Form Submission
+            deliveryForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                
+                const product = productField.value;
+                const supplier = supplierField.value;
+                const zone = zoneField.value;
+                const scheduledTime = scheduledTimeField.value;
+                const enteredOTP = otpInput.value;
+                
+                // Validate required fields
+                if (!product || !supplier || !zone || !scheduledTime) {
+                    alert('Please fill in all required fields');
+                    return;
+                }
+                
+                // Validate OTP
+                if (!generatedOTP || enteredOTP !== String(generatedOTP)) {
+                    alert('Please generate and enter a valid OTP');
+                    return;
+                }
+                
+                // Create delivery object
+                const deliveryData = {
+                    product,
+                    supplier,
+                    zone,
+                    scheduled_time: scheduledTime,
+                    otp: generatedOTP
+                };
+                
+                try {
+                    // In a real app, this would send data to the backend
+                    const deliveryId = `NOMIID${Math.floor(143 + Math.random() * 10)}`;
+                    
+                    // Show success message
+                    alert(`Delivery ${deliveryId} recorded successfully!`);
+                    
+                    // Reset form
+                    deliveryForm.reset();
+                    generatedOTP = null;
+                    otpDisplay.value = '';
+                    deliveryIdField.value = generateDeliveryId();
+                    
+                    // Update dashboard
+                    updateDashboard();
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('Error submitting delivery. Please try again.');
+                }
+            });
+            
+            // Initialize dashboard
+            function initDashboard() {
+                // Initialize chart
+                const ctx = document.getElementById('delivery-chart').getContext('2d');
+                deliveryChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                        datasets: [{
+                            label: 'On-Time Deliveries',
+                            data: [12, 15, 14, 16, 18, 10, 8],
+                            backgroundColor: 'rgba(46, 204, 113, 0.6)',
+                            borderColor: 'rgba(46, 204, 113, 1)',
+                            borderWidth: 1
+                        }, {
+                            label: 'Delayed Deliveries',
+                            data: [2, 3, 1, 4, 2, 5, 3],
+                            backgroundColor: 'rgba(243, 156, 18, 0.6)',
+                            borderColor: 'rgba(243, 156, 18, 1)',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+                
+                // Auto-generate delivery ID
+                deliveryIdField.value = generateDeliveryId();
+                
+                // Set current time as default for scheduled delivery
+                const now = new Date();
+                const timeString = now.toISOString().slice(0, 16);
+                scheduledTimeField.value = timeString;
+            }
+            
+            // Initialize analytics charts
+            function initAnalyticsCharts() {
+                // Performance Chart
+                const perfCtx = document.getElementById('performance-chart').getContext('2d');
+                performanceChart = new Chart(perfCtx, {
+                    type: 'line',
+                    data: {
+                        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct'],
+                        datasets: [{
+                            label: 'On-Time Rate',
+                            data: [78, 82, 80, 85, 87, 88, 86, 89, 92, 94],
+                            borderColor: 'rgba(46, 204, 113, 1)',
+                            backgroundColor: 'rgba(46, 204, 113, 0.1)',
+                            tension: 0.3,
+                            fill: true
+                        }, {
+                            label: 'Success Rate',
+                            data: [85, 87, 86, 88, 89, 90, 91, 92, 93, 95],
+                            borderColor: 'rgba(52, 152, 219, 1)',
+                            backgroundColor: 'rgba(52, 152, 219, 0.1)',
+                            tension: 0.3,
+                            fill: true
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        scales: {
+                            y: {
+                                min: 70,
+                                max: 100,
+                                ticks: {
+                                    callback: function(value) {
+                                        return value + '%';
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+                
+                // Zone Performance Chart
+                const zoneCtx = document.getElementById('zone-chart').getContext('2d');
+                zoneChart = new Chart(zoneCtx, {
+                    type: 'radar',
+                    data: {
+                        labels: ['On-Time Rate', 'Success Rate', 'Avg. Speed', 'Customer Rating', 'Delivery Volume'],
+                        datasets: [{
+                            label: 'North Chennai',
+                            data: [92, 94, 88, 90, 85],
+                            backgroundColor: 'rgba(46, 204, 113, 0.2)',
+                            borderColor: 'rgba(46, 204, 113, 1)',
+                            pointBackgroundColor: 'rgba(46, 204, 113, 1)'
+                        }, {
+                            label: 'Central Chennai',
+                            data: [85, 88, 82, 84, 92],
+                            backgroundColor: 'rgba(52, 152, 219, 0.2)',
+                            borderColor: 'rgba(52, 152, 219, 1)',
+                            pointBackgroundColor: 'rgba(52, 152, 219, 1)'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        scales: {
+                            r: {
+                                min: 50,
+                                max: 100,
+                                ticks: {
+                                    stepSize: 10
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+            
+            // Generate a delivery ID
+            function generateDeliveryId() {
+                const timestamp = new Date().getTime().toString().slice(-6);
+                return `NOMIID${timestamp}`;
+            }
+            
+            // Update dashboard metrics
+            function updateDashboard() {
+                // In a real app, this would fetch data from the backend
+                document.getElementById('total-deliveries').textContent = 
+                    Math.floor(142 + Math.random() * 5);
+                
+                document.getElementById('success-rate').textContent = 
+                    `${Math.floor(90 + Math.random() * 5)}%`;
+                
+                document.getElementById('on-time-rate').textContent = 
+                    `${Math.floor(83 + Math.random() * 5)}%`;
+                
+                document.getElementById('avg-delay').textContent = 
+                    `${Math.floor(10 + Math.random() * 5)} min`;
+            }
+            
+            // Voice Recognition Setup
+            if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+                const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+                recognition = new SpeechRecognition();
+                recognition.continuous = false;
+                recognition.interimResults = false;
+                
+                recognition.onstart = () => {
+                    micButton.classList.add('listening');
+                    voiceStatus.textContent = currentLanguage === 'en-IN' 
+                        ? 'Listening...' 
+                        : 'கேட்கிறது...';
+                };
+                
+                recognition.onresult = (event) => {
+                    const transcript = event.results[0][0].transcript;
+                    processVoiceCommand(transcript);
+                };
+                
+                recognition.onend = () => {
+                    micButton.classList.remove('listening');
+                    voiceStatus.textContent = currentLanguage === 'en-IN' 
+                        ? 'Click mic to speak' 
+                        : 'மைக்ரோஃபோனைக் கிளிக் செய்து பேசுங்கள்';
+                };
+                
+                micButton.addEventListener('click', () => {
+                    recognition.lang = currentLanguage;
+                    recognition.start();
+                });
+            } else {
+                micButton.disabled = true;
+                voiceStatus.textContent = 'Voice input not supported in this browser';
+            }
+            
+            // Process voice commands
+            function processVoiceCommand(transcript) {
+                // Tamil commands processing
+                if (currentLanguage === 'ta-IN') {
+                    const productMatch = transcript.match(/(?:பெட்டி|டெலிவரி|விநியோகம்) (?:க்கு|க்காக)? (.+?) (?:இலிருந்து|வழங்குநரிடமிருந்து)/i);
+                    const supplierMatch = transcript.match(/(?:இலிருந்து|வழங்குநரிடமிருந்து) (.+)/i);
+                    
+                    if (productMatch && supplierMatch) {
+                        productField.value = productMatch[1].trim();
+                        supplierField.value = supplierMatch[1].trim();
+                        generateOTP.click();
+                        return;
+                    }
+                }
+                
+                // English commands processing
+                const commandPattern = /(?:add|record) delivery (?:for )?(.+?) (?:from )?(.+)/i;
+                const match = transcript.match(commandPattern);
+                
+                if (match) {
+                    productField.value = match[1].trim();
+                    supplierField.value = match[2].trim();
+                    generateOTP.click();
+                }
+            }
+        });
+    </script>
+</body>
+</html>
