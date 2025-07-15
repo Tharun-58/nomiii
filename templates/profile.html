@@ -1,0 +1,168 @@
+{% extends "base.html" %}
+
+{% block title %}Profile{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Profile</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#editProfileModal">
+            <i class="bi bi-pencil"></i> Edit Profile
+        </button>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-4">
+        <div class="card mb-4">
+            <div class="card-body text-center">
+                <img src="https://via.placeholder.com/150" alt="Profile" class="rounded-circle mb-3" width="150" height="150">
+                <h5 class="card-title">John Doe</h5>
+                <p class="text-muted mb-1">Retail Store Owner</p>
+                <p class="text-muted mb-4">Chennai, Tamil Nadu</p>
+                
+                <div class="d-flex justify-content-center mb-2">
+                    <button type="button" class="btn btn-primary me-1">Follow</button>
+                    <button type="button" class="btn btn-outline-primary ms-1">Message</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5 class="card-title">About</h5>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item px-0">
+                        <i class="bi bi-person me-2"></i>
+                        <strong>Username:</strong> johndoe
+                    </li>
+                    <li class="list-group-item px-0">
+                        <i class="bi bi-envelope me-2"></i>
+                        <strong>Email:</strong> john@example.com
+                    </li>
+                    <li class="list-group-item px-0">
+                        <i class="bi bi-phone me-2"></i>
+                        <strong>Phone:</strong> +91 9876543210
+                    </li>
+                    <li class="list-group-item px-0">
+                        <i class="bi bi-building me-2"></i>
+                        <strong>Business:</strong> John's Electronics
+                    </li>
+                    <li class="list-group-item px-0">
+                        <i class="bi bi-geo-alt me-2"></i>
+                        <strong>Location:</strong> Chennai, India
+                    </li>
+                    <li class="list-group-item px-0">
+                        <i class="bi bi-calendar me-2"></i>
+                        <strong>Joined:</strong> January 2022
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-8">
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5 class="card-title">Business Information</h5>
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><strong>Business Name:</strong> John's Electronics</p>
+                        <p><strong>Business Type:</strong> Retail Store</p>
+                        <p><strong>GSTIN:</strong> 22ABCDE1234F1Z5</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>Address:</strong> 123 Main Street, Chennai</p>
+                        <p><strong>PIN Code:</strong> 600001</p>
+                        <p><strong>State:</strong> Tamil Nadu</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5 class="card-title">Activity</h5>
+                <div class="table-responsive">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Activity</th>
+                                <th>Details</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>2023-07-15</td>
+                                <td>Login</td>
+                                <td>Logged in from Chrome on Windows</td>
+                            </tr>
+                            <tr>
+                                <td>2023-07-14</td>
+                                <td>Order</td>
+                                <td>Created new order #ORD-1001</td>
+                            </tr>
+                            <tr>
+                                <td>2023-07-12</td>
+                                <td>Product</td>
+                                <td>Added new product Wireless Headphones</td>
+                            </tr>
+                            <tr>
+                                <td>2023-07-10</td>
+                                <td>Login</td>
+                                <td>Logged in from Safari on iPhone</td>
+                            </tr>
+                            <tr>
+                                <td>2023-07-08</td>
+                                <td>Profile</td>
+                                <td>Updated profile information</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Profile Modal -->
+<div class="modal fade" id="editProfileModal" tabindex="-1" aria-labelledby="editProfileModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editProfileModalLabel">Edit Profile</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <div class="mb-3">
+                        <label for="editName" class="form-label">Full Name</label>
+                        <input type="text" class="form-control" id="editName" value="John Doe">
+                    </div>
+                    <div class="mb-3">
+                        <label for="editEmail" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="editEmail" value="john@example.com">
+                    </div>
+                    <div class="mb-3">
+                        <label for="editPhone" class="form-label">Phone</label>
+                        <input type="tel" class="form-control" id="editPhone" value="9876543210">
+                    </div>
+                    <div class="mb-3">
+                        <label for="editBusiness" class="form-label">Business Name</label>
+                        <input type="text" class="form-control" id="editBusiness" value="John's Electronics">
+                    </div>
+                    <div class="mb-3">
+                        <label for="editAddress" class="form-label">Address</label>
+                        <textarea class="form-control" id="editAddress" rows="3">123 Main Street, Chennai</textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary">Save changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
