@@ -1,0 +1,87 @@
+<!-- templates/view_earnings.html -->
+{% extends "base.html" %}
+{% block title %}Earnings{% endblock %}
+{% block page_title %}Earnings Report{% endblock %}
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-4">
+        <div class="card text-center bg-white shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title">Total Earnings</h5>
+                <h2 class="text-primary">${{ "%.2f"|format(total_earnings) }}</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card text-center bg-white shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title">Paid Earnings</h5>
+                <h2 class="text-success">${{ "%.2f"|format(paid_earnings) }}</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card text-center bg-white shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title">Pending Payments</h5>
+                <h2 class="text-warning">${{ "%.2f"|format(total_earnings - paid_earnings) }}</h2>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card shadow-sm mb-4">
+    <div class="card-header bg-white">
+        <h5 class="mb-0">Earnings Breakdown</h5>
+    </div>
+    <div class="card-body">
+        {{ earnings_chart|safe }}
+    </div>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-header bg-white">
+        <h5 class="mb-0">All Earnings</h5>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Earning ID</th>
+                        <th>Order ID</th>
+                        <th>Retailer</th>
+                        <th>Product</th>
+                        <th>Amount</th>
+                        <th>Paid</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for earning in earnings %}
+                    <tr>
+                        <td>{{ earning['Earning ID'] }}</td>
+                        <td>{{ earning['Order ID'] }}</td>
+                        <td>{{ earning['Retailer Name'] }}</td>
+                        <td>{{ earning['Product Name'] }}</td>
+                        <td>${{ "%.2f"|format(earning['Amount']) }}</td>
+                        <td>
+                            {% if earning['Paid'] == 'Yes' %}
+                                <span class="badge bg-success">Yes</span>
+                            {% else %}
+                                <span class="badge bg-warning">No</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ earning['Date'] }}</td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="7" class="text-center py-4">No earnings found</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

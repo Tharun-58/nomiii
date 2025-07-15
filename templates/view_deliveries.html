@@ -1,0 +1,72 @@
+<!-- templates/view_deliveries.html -->
+{% extends "base.html" %}
+{% block title %}Deliveries{% endblock %}
+{% block page_title %}Delivery Management{% endblock %}
+{% block content %}
+<div class="card shadow-sm">
+    <div class="card-header bg-white">
+        <h5 class="mb-0">All Deliveries</h5>
+    </div>
+    
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Delivery ID</th>
+                        <th>Order ID</th>
+                        <th>Retailer</th>
+                        <th>Product</th>
+                        <th>Quantity</th>
+                        <th>Delivery Partner</th>
+                        <th>Status</th>
+                        <th>Dispatched Date</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for delivery in deliveries %}
+                    <tr>
+                        <td>{{ delivery['Delivery ID'] }}</td>
+                        <td>{{ delivery['Order ID'] }}</td>
+                        <td>{{ delivery['Retailer Name'] }}</td>
+                        <td>{{ delivery['Product Name'] }}</td>
+                        <td>{{ delivery['Quantity'] }}</td>
+                        <td>{{ delivery['Delivery Partner'] or 'Not assigned' }}</td>
+                        <td>
+                            {% if delivery['Status'] == 'Pending' %}
+                                <span class="badge bg-warning">Pending</span>
+                            {% elif delivery['Status'] == 'Dispatched' %}
+                                <span class="badge bg-info">Dispatched</span>
+                            {% elif delivery['Status'] == 'In Transit' %}
+                                <span class="badge bg-primary">In Transit</span>
+                            {% elif delivery['Status'] == 'Delivered' %}
+                                <span class="badge bg-success">Delivered</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ delivery['Dispatched Date'] or 'Not dispatched' }}</td>
+                        <td>
+                            <form method="POST" action="{{ url_for('update_delivery', delivery_id=delivery['Delivery ID']) }}" class="d-flex">
+                                <select class="form-select form-select-sm me-2" name="status">
+                                    <option value="Pending" {% if delivery['Status'] == 'Pending' %}selected{% endif %}>Pending</option>
+                                    <option value="Dispatched" {% if delivery['Status'] == 'Dispatched' %}selected{% endif %}>Dispatched</option>
+                                    <option value="In Transit" {% if delivery['Status'] == 'In Transit' %}selected{% endif %}>In Transit</option>
+                                    <option value="Delivered" {% if delivery['Status'] == 'Delivered' %}selected{% endif %}>Delivered</option>
+                                </select>
+                                <input type="text" class="form-control form-control-sm me-2" name="partner" 
+                                       placeholder="Partner" value="{{ delivery['Delivery Partner'] or '' }}" required>
+                                <button type="submit" class="btn btn-sm btn-primary">Update</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="9" class="text-center py-4">No deliveries found</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
