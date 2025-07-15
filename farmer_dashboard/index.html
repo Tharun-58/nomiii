@@ -1,0 +1,1550 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GlobalFarm - International Farmer Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary: #27ae60;
+            --primary-light: #2ecc71;
+            --primary-dark: #219653;
+            --secondary: #f39c12;
+            --accent: #3498db;
+            --text: #2c3e50;
+            --text-light: #7f8c8d;
+            --background: #ecf0f1;
+            --card-bg: #ffffff;
+            --success: #27ae60;
+            --warning: #f39c12;
+            --danger: #e74c3c;
+            --info: #3498db;
+            --shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            --border-radius: 12px;
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background-color: var(--background);
+            color: var(--text);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        .container {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            min-height: 100vh;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            background: linear-gradient(180deg, var(--primary-dark), var(--primary));
+            color: white;
+            padding: 25px 15px;
+            box-shadow: var(--shadow);
+            z-index: 100;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .sidebar::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" preserveAspectRatio="none"><path d="M0,0 L100,0 L100,100 Z" fill="rgba(255,255,255,0.05)"/></svg>');
+            background-size: cover;
+            opacity: 0.2;
+            pointer-events: none;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 30px;
+            padding: 0 10px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .logo i {
+            font-size: 28px;
+            background: white;
+            color: var(--primary);
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .logo h1 {
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        .profile {
+            text-align: center;
+            padding: 20px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+            margin-bottom: 20px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .profile-img {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-light), var(--accent));
+            margin: 0 auto 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 40px;
+            border: 3px solid white;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .profile h2 {
+            font-size: 22px;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+
+        .profile p {
+            font-size: 15px;
+            opacity: 0.9;
+        }
+
+        .nav-links {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 15px;
+            border-radius: var(--border-radius);
+            color: rgba(255,255,255,0.9);
+            text-decoration: none;
+            transition: var(--transition);
+            font-size: 16px;
+            font-weight: 500;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            background: rgba(255,255,255,0.15);
+            color: white;
+            transform: translateX(5px);
+        }
+
+        .nav-link i {
+            font-size: 20px;
+            width: 24px;
+            text-align: center;
+        }
+
+        /* Main Content Styles */
+        .main-content {
+            padding: 30px;
+            overflow-y: auto;
+            background-color: #f8fafb;
+            position: relative;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .greeting h2 {
+            font-size: 28px;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 5px;
+        }
+
+        .greeting p {
+            color: var(--text-light);
+            font-size: 16px;
+            max-width: 600px;
+        }
+
+        .actions {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 22px;
+            border-radius: var(--border-radius);
+            border: none;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: var(--transition);
+            font-size: 15px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(39, 174, 96, 0.3);
+        }
+
+        .btn-secondary {
+            background: var(--secondary);
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #e67e22;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(243, 156, 18, 0.3);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid var(--primary);
+            color: var(--primary);
+        }
+
+        .btn-outline:hover {
+            background: rgba(46, 125, 50, 0.1);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(39, 174, 96, 0.2);
+        }
+
+        .language-selector {
+            padding: 10px 15px;
+            border-radius: var(--border-radius);
+            border: 2px solid #ddd;
+            background: white;
+            font-size: 15px;
+            font-weight: 500;
+            color: var(--text);
+            box-shadow: var(--shadow);
+            min-width: 150px;
+        }
+
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: var(--border-radius);
+            padding: 25px;
+            box-shadow: var(--shadow);
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            transition: var(--transition);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .card-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            background: rgba(39, 174, 96, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary);
+            font-size: 22px;
+        }
+
+        .card-value {
+            font-size: 36px;
+            font-weight: 700;
+            color: var(--text);
+        }
+
+        .card-footer {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            color: var(--text-light);
+            border-top: 1px solid rgba(0, 0, 0, 0.05);
+            padding-top: 15px;
+            margin-top: 5px;
+        }
+
+        .trend-up {
+            color: var(--success);
+        }
+
+        .trend-down {
+            color: var(--danger);
+        }
+
+        .section {
+            background: var(--card-bg);
+            border-radius: var(--border-radius);
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: var(--shadow);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .section-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--text);
+            position: relative;
+        }
+
+        .section-title::after {
+            content: "";
+            position: absolute;
+            bottom: -8px;
+            left: 0;
+            width: 60px;
+            height: 4px;
+            background: var(--primary);
+            border-radius: 2px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 25px;
+            margin-bottom: 25px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        label {
+            font-weight: 500;
+            font-size: 15px;
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        label i {
+            color: var(--primary);
+        }
+
+        input, select {
+            padding: 14px;
+            border-radius: 10px;
+            border: 2px solid #e0e0e0;
+            font-size: 16px;
+            transition: var(--transition);
+        }
+
+        input:focus, select:focus {
+            border-color: var(--primary);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(39, 174, 96, 0.2);
+        }
+
+        .voice-input {
+            display: flex;
+            gap: 10px;
+            position: relative;
+        }
+
+        .voice-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: var(--transition);
+            font-size: 18px;
+            box-shadow: 0 4px 10px rgba(39, 174, 96, 0.3);
+        }
+
+        .voice-btn:hover {
+            background: var(--primary-dark);
+            transform: scale(1.05);
+        }
+
+        .voice-btn.listening {
+            animation: pulse 1.5s infinite;
+            background: var(--danger);
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(231, 76, 60, 0.7); }
+            70% { box-shadow: 0 0 0 12px rgba(231, 76, 60, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(231, 76, 60, 0); }
+        }
+
+        .voice-feedback {
+            position: absolute;
+            top: -40px;
+            left: 0;
+            background: var(--text);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            display: none;
+        }
+
+        .table-container {
+            overflow-x: auto;
+            border-radius: var(--border-radius);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            border: 1px solid #eee;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 800px;
+        }
+
+        thead {
+            background: rgba(39, 174, 96, 0.1);
+        }
+
+        th {
+            padding: 18px;
+            text-align: left;
+            font-weight: 600;
+            color: var(--text);
+            font-size: 16px;
+            border-bottom: 2px solid #eee;
+        }
+
+        td {
+            padding: 16px;
+            border-bottom: 1px solid #eee;
+            font-size: 15px;
+        }
+
+        tr:hover {
+            background: rgba(39, 174, 96, 0.03);
+        }
+
+        .status {
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 500;
+            display: inline-block;
+        }
+
+        .status-success {
+            background: rgba(39, 174, 96, 0.15);
+            color: var(--success);
+        }
+
+        .status-warning {
+            background: rgba(243, 156, 18, 0.15);
+            color: var(--warning);
+        }
+
+        .status-danger {
+            background: rgba(231, 76, 60, 0.15);
+            color: var(--danger);
+        }
+
+        .action-btn {
+            padding: 8px 14px;
+            border-radius: 8px;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            font-size: 16px;
+            transition: var(--transition);
+            margin-right: 5px;
+        }
+
+        .edit-btn {
+            color: var(--info);
+        }
+
+        .edit-btn:hover {
+            background: rgba(52, 152, 219, 0.1);
+            transform: scale(1.1);
+        }
+
+        .delete-btn {
+            color: var(--danger);
+        }
+
+        .delete-btn:hover {
+            background: rgba(231, 76, 60, 0.1);
+            transform: scale(1.1);
+        }
+
+        .ai-alert {
+            padding: 18px;
+            border-radius: var(--border-radius);
+            margin: 20px 0;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .alert-success {
+            background: rgba(39, 174, 96, 0.1);
+            border-left: 5px solid var(--success);
+        }
+
+        .alert-warning {
+            background: rgba(243, 156, 18, 0.1);
+            border-left: 5px solid var(--warning);
+        }
+
+        .alert-danger {
+            background: rgba(231, 76, 60, 0.1);
+            border-left: 5px solid var(--danger);
+        }
+
+        .alert-info {
+            background: rgba(52, 152, 219, 0.1);
+            border-left: 5px solid var(--info);
+        }
+
+        .alert-icon {
+            font-size: 28px;
+            min-width: 40px;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 25px;
+            color: var(--text-light);
+            font-size: 15px;
+            border-top: 1px solid #eee;
+            margin-top: 30px;
+        }
+
+        .expiring-soon {
+            background: rgba(243, 156, 18, 0.1);
+        }
+
+        .charts-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 25px;
+            margin-top: 30px;
+        }
+
+        .chart-card {
+            background: var(--card-bg);
+            border-radius: var(--border-radius);
+            padding: 25px;
+            box-shadow: var(--shadow);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .voice-training {
+            background: rgba(52, 152, 219, 0.1);
+            padding: 20px;
+            border-radius: var(--border-radius);
+            margin-top: 20px;
+        }
+
+        .voice-training h3 {
+            margin-bottom: 15px;
+            color: var(--info);
+        }
+
+        .voice-training ul {
+            padding-left: 20px;
+            margin-bottom: 15px;
+        }
+
+        .voice-training li {
+            margin-bottom: 8px;
+        }
+
+        /* Responsive */
+        @media (max-width: 1100px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+            
+            .sidebar {
+                display: none;
+            }
+            
+            .charts-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .actions {
+                width: 100%;
+            }
+            
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .cards {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .main-content {
+                padding: 20px 15px;
+            }
+            
+            .section {
+                padding: 20px;
+            }
+            
+            .btn {
+                padding: 10px 15px;
+                font-size: 14px;
+            }
+        }
+
+        /* Voice command popup */
+        .voice-commands-popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 30px;
+            border-radius: var(--border-radius);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            width: 90%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+            display: none;
+        }
+
+        .voice-commands-popup h2 {
+            margin-bottom: 20px;
+            color: var(--primary);
+            text-align: center;
+        }
+
+        .command-group {
+            margin-bottom: 25px;
+        }
+
+        .command-group h3 {
+            margin-bottom: 15px;
+            color: var(--text);
+            padding-bottom: 8px;
+            border-bottom: 2px solid var(--primary-light);
+        }
+
+        .command-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .command-text {
+            font-weight: 500;
+        }
+
+        .command-example {
+            color: var(--text-light);
+            font-style: italic;
+        }
+
+        .close-popup {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--text-light);
+        }
+
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="logo">
+                <i class="fas fa-seedling"></i>
+                <h1>GlobalFarm</h1>
+            </div>
+            
+            <div class="profile">
+                <div class="profile-img">
+                    <i class="fas fa-user"></i>
+                </div>
+                <h2>Rajesh Kumar</h2>
+                <p>Farm Size: 12 Acres | India</p>
+            </div>
+            
+            <div class="nav-links">
+                <a href="#" class="nav-link active">
+                    <i class="fas fa-home"></i>
+                    Dashboard
+                </a>
+                <a href="#" class="nav-link">
+                    <i class="fas fa-crop-alt"></i>
+                    My Crops
+                </a>
+                <a href="#" class="nav-link">
+                    <i class="fas fa-chart-line"></i>
+                    Market Prices
+                </a>
+                <a href="#" class="nav-link">
+                    <i class="fas fa-users"></i>
+                    Buyers Network
+                </a>
+                <a href="#" class="nav-link">
+                    <i class="fas fa-cloud-sun"></i>
+                    Weather Forecast
+                </a>
+                <a href="#" class="nav-link">
+                    <i class="fas fa-book"></i>
+                    Farming Resources
+                </a>
+                <a href="#" class="nav-link">
+                    <i class="fas fa-cog"></i>
+                    Settings
+                </a>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="header">
+                <div class="greeting">
+                    <h2>Welcome back, Rajesh!</h2>
+                    <p>Today is Tuesday, July 15, 2025 | Your farm dashboard is ready with the latest insights</p>
+                </div>
+                
+                <div class="actions">
+                    <select class="language-selector" id="languageSelector">
+                        <option value="en">English</option>
+                        <option value="hi">Hindi (हिंदी)</option>
+                        <option value="es">Spanish (Español)</option>
+                        <option value="fr">French (Français)</option>
+                        <option value="pt">Portuguese (Português)</option>
+                        <option value="sw">Swahili (Kiswahili)</option>
+                        <option value="zh">Chinese (中文)</option>
+                    </select>
+                    <button class="btn btn-outline" id="voiceCommandBtn">
+                        <i class="fas fa-microphone-alt"></i> Voice Commands
+                    </button>
+                    <button class="btn btn-primary" id="exportBtn">
+                        <i class="fas fa-file-export"></i> Export to Excel
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Stats Cards -->
+            <div class="cards">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">Active Crops</div>
+                        <div class="card-icon">
+                            <i class="fas fa-leaf"></i>
+                        </div>
+                    </div>
+                    <div class="card-value" id="cropCount">6</div>
+                    <div class="card-footer">
+                        <i class="fas fa-arrow-up trend-up"></i>
+                        <span>2 new crops this month</span>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">Harvest Alert</div>
+                        <div class="card-icon">
+                            <i class="fas fa-bell"></i>
+                        </div>
+                    </div>
+                    <div class="card-value" id="alertCount">3</div>
+                    <div class="card-footer">
+                        <i class="fas fa-exclamation-circle trend-down"></i>
+                        <span>Crops ready next week</span>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">Avg. Price</div>
+                        <div class="card-icon">
+                            <i class="fas fa-rupee-sign"></i>
+                        </div>
+                    </div>
+                    <div class="card-value" id="avgPrice">₹42/kg</div>
+                    <div class="card-footer">
+                        <i class="fas fa-arrow-up trend-up"></i>
+                        <span>12% higher than last month</span>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">Buyer Offers</div>
+                        <div class="card-icon">
+                            <i class="fas fa-handshake"></i>
+                        </div>
+                    </div>
+                    <div class="card-value" id="buyerOffers">5</div>
+                    <div class="card-footer">
+                        <i class="fas fa-arrow-up trend-up"></i>
+                        <span>2 new offers today</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- AI Alerts Container -->
+            <div id="aiAlertsContainer">
+                <div class="ai-alert alert-warning">
+                    <div class="alert-icon">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                    <div>
+                        <strong>Harvest Alert:</strong> Your Tomato crop in Salem is ready for harvest in 3 days. Contact buyers now!
+                    </div>
+                </div>
+                
+                <div class="ai-alert alert-success">
+                    <div class="alert-icon">
+                        <i class="fas fa-lightbulb"></i>
+                    </div>
+                    <div>
+                        <strong>Smart Suggestion:</strong> Current market rate for Onion is ₹38/kg (15% higher than your listed price). Consider updating your price.
+                    </div>
+                </div>
+                
+                <div class="ai-alert alert-info">
+                    <div class="alert-icon">
+                        <i class="fas fa-cloud-sun-rain"></i>
+                    </div>
+                    <div>
+                        <strong>Weather Advisory:</strong> Heavy rainfall expected in your region next week. Plan harvest accordingly.
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Add Produce Form -->
+            <div class="section">
+                <div class="section-header">
+                    <h2 class="section-title">Add New Crop</h2>
+                    <button class="btn btn-secondary" id="voiceFormBtn">
+                        <i class="fas fa-microphone-alt"></i> Fill Form by Voice
+                    </button>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="cropName"><i class="fas fa-apple-alt"></i> Crop Name</label>
+                        <div class="voice-input">
+                            <input type="text" id="cropName" placeholder="e.g., Tomato, Onion, Wheat">
+                            <button class="voice-btn" id="voiceCropBtn">
+                                <i class="fas fa-microphone"></i>
+                            </button>
+                            <div class="voice-feedback" id="cropFeedback"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="cropQuantity"><i class="fas fa-weight"></i> Quantity</label>
+                        <div class="voice-input">
+                            <input type="text" id="cropQuantity" placeholder="e.g., 100 kg, 5 tons">
+                            <button class="voice-btn" id="voiceQuantityBtn">
+                                <i class="fas fa-microphone"></i>
+                            </button>
+                            <div class="voice-feedback" id="quantityFeedback"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="cropPrice"><i class="fas fa-tag"></i> Price</label>
+                        <div class="voice-input">
+                            <input type="text" id="cropPrice" placeholder="e.g., ₹35/kg, $0.5/lb">
+                            <button class="voice-btn" id="voicePriceBtn">
+                                <i class="fas fa-microphone"></i>
+                            </button>
+                            <div class="voice-feedback" id="priceFeedback"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="sowingDate"><i class="fas fa-seedling"></i> Sowing Date</label>
+                        <input type="date" id="sowingDate">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="harvestDate"><i class="fas fa-sickle"></i> Harvest Date</label>
+                        <input type="date" id="harvestDate">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="location"><i class="fas fa-map-marker-alt"></i> Location</label>
+                        <div class="voice-input">
+                            <input type="text" id="location" placeholder="e.g., Salem, Tamil Nadu">
+                            <button class="voice-btn" id="voiceLocationBtn">
+                                <i class="fas fa-microphone"></i>
+                            </button>
+                            <div class="voice-feedback" id="locationFeedback"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <button class="btn btn-primary" id="addCropBtn">
+                            <i class="fas fa-plus"></i> Add Crop
+                        </button>
+                        <button class="btn btn-secondary" id="suggestPriceBtn">
+                            <i class="fas fa-lightbulb"></i> Suggest Price
+                        </button>
+                        <button class="btn btn-outline" id="clearFormBtn">
+                            <i class="fas fa-eraser"></i> Clear Form
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="voice-training">
+                    <h3><i class="fas fa-graduation-cap"></i> Voice Command Tips</h3>
+                    <p>Our system understands various pronunciations and accents. Try these examples:</p>
+                    <ul>
+                        <li>"Tomato" can be said as "tuh-MAY-toh" or "tuh-MAH-toh"</li>
+                        <li>Quantities: "100 kilograms" or "two hundred kilos"</li>
+                        <li>Prices: "thirty five rupees per kilo" or "₹35/kg"</li>
+                        <li>Locations: "Salem, Tamil Nadu" or "Salem district"</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- Charts Section -->
+            <div class="charts-container">
+                <div class="chart-card">
+                    <h3>Crop Distribution</h3>
+                    <canvas id="cropChart"></canvas>
+                </div>
+                <div class="chart-card">
+                    <h3>Price Trends</h3>
+                    <canvas id="priceChart"></canvas>
+                </div>
+            </div>
+            
+            <!-- Produce Table -->
+            <div class="section">
+                <div class="section-header">
+                    <h2 class="section-title">My Produce</h2>
+                    <div class="actions">
+                        <input type="text" placeholder="Search crops..." id="searchCrop">
+                        <button class="btn btn-outline" id="voiceSearchBtn">
+                            <i class="fas fa-microphone-alt"></i> Voice Search
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Crop</th>
+                                <th>Quantity</th>
+                                <th>Price</th>
+                                <th>Sowing Date</th>
+                                <th>Harvest Date</th>
+                                <th>Location</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="produceTableBody">
+                            <tr>
+                                <td>Tomato</td>
+                                <td>100 kg</td>
+                                <td>₹35/kg</td>
+                                <td>May 10, 2025</td>
+                                <td>Jul 18, 2025</td>
+                                <td>Salem, TN</td>
+                                <td><span class="status status-warning">Harvest in 3 days</span></td>
+                                <td>
+                                    <button class="action-btn edit-btn">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="action-btn delete-btn">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Onion</td>
+                                <td>250 kg</td>
+                                <td>₹32/kg</td>
+                                <td>May 1, 2025</td>
+                                <td>Jul 25, 2025</td>
+                                <td>Chennai, TN</td>
+                                <td><span class="status status-success">Growing</span></td>
+                                <td>
+                                    <button class="action-btn edit-btn">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="action-btn delete-btn">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr class="expiring-soon">
+                                <td>Potato</td>
+                                <td>300 kg</td>
+                                <td>₹22/kg</td>
+                                <td>Apr 20, 2025</td>
+                                <td>Jul 10, 2025</td>
+                                <td>Coimbatore, TN</td>
+                                <td><span class="status status-danger">Harvest Now!</span></td>
+                                <td>
+                                    <button class="action-btn edit-btn">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="action-btn delete-btn">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Chili</td>
+                                <td>80 kg</td>
+                                <td>₹55/kg</td>
+                                <td>Jun 5, 2025</td>
+                                <td>Aug 20, 2025</td>
+                                <td>Madurai, TN</td>
+                                <td><span class="status status-success">Growing</span></td>
+                                <td>
+                                    <button class="action-btn edit-btn">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="action-btn delete-btn">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr class="expiring-soon">
+                                <td>Wheat</td>
+                                <td>500 kg</td>
+                                <td>₹28/kg</td>
+                                <td>Mar 15, 2025</td>
+                                <td>Jul 5, 2025</td>
+                                <td>Punjab</td>
+                                <td><span class="status status-danger">Harvest Now!</span></td>
+                                <td>
+                                    <button class="action-btn edit-btn">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="action-btn delete-btn">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="footer">
+                <p>GlobalFarm International Farmer Dashboard © 2025 | Empowering Farmers Worldwide</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Voice Commands Popup -->
+    <div class="overlay" id="overlay"></div>
+    <div class="voice-commands-popup" id="voiceCommandsPopup">
+        <div class="close-popup" id="closePopup">&times;</div>
+        <h2><i class="fas fa-microphone-alt"></i> Voice Command Guide</h2>
+        
+        <div class="command-group">
+            <h3>Form Filling Commands</h3>
+            <div class="command-item">
+                <div class="command-text">Set crop to [crop name]</div>
+                <div class="command-example">"Set crop to tomatoes"</div>
+            </div>
+            <div class="command-item">
+                <div class="command-text">Set quantity to [amount] [unit]</div>
+                <div class="command-example">"Set quantity to one hundred kilograms"</div>
+            </div>
+            <div class="command-item">
+                <div class="command-text">Set price to [amount] [currency]</div>
+                <div class="command-example">"Set price to thirty five rupees per kilo"</div>
+            </div>
+            <div class="command-item">
+                <div class="command-text">Set location to [location]</div>
+                <div class="command-example">"Set location to Salem, Tamil Nadu"</div>
+            </div>
+        </div>
+        
+        <div class="command-group">
+            <h3>Navigation Commands</h3>
+            <div class="command-item">
+                <div class="command-text">Go to dashboard</div>
+                <div class="command-example">"Take me to the dashboard"</div>
+            </div>
+            <div class="command-item">
+                <div class="command-text">Show my crops</div>
+                <div class="command-example">"Show my crops list"</div>
+            </div>
+            <div class="command-item">
+                <div class="command-text">View market prices</div>
+                <div class="command-example">"Show me market prices"</div>
+            </div>
+            <div class="command-item">
+                <div class="command-text">Check weather</div>
+                <div class="command-example">"What's the weather forecast?"</div>
+            </div>
+        </div>
+        
+        <div class="command-group">
+            <h3>Data Commands</h3>
+            <div class="command-item">
+                <div class="command-text">Add new crop</div>
+                <div class="command-example">"Add a new crop to my list"</div>
+            </div>
+            <div class="command-item">
+                <div class="command-text">Export to Excel</div>
+                <div class="command-example">"Export my data to Excel"</div>
+            </div>
+            <div class="command-item">
+                <div class="command-text">Search for [crop name]</div>
+                <div class="command-example">"Search for tomatoes"</div>
+            </div>
+            <div class="command-item">
+                <div class="command-text">Clear form</div>
+                <div class="command-example">"Clear the form"</div>
+            </div>
+        </div>
+        
+        <div class="command-group">
+            <h3>Information Commands</h3>
+            <div class="command-item">
+                <div class="command-text">What's my harvest status?</div>
+                <div class="command-example">"What needs harvesting?"</div>
+            </div>
+            <div class="command-item">
+                <div class="command-text">Price suggestion for [crop]</div>
+                <div class="command-example">"What price for tomatoes?"</div>
+            </div>
+            <div class="command-item">
+                <div class="command-text">Show buyers for [crop]</div>
+                <div class="command-example">"Who buys tomatoes?"</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize the dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize charts
+            initCharts();
+            
+            // Set up event listeners
+            setupEventListeners();
+            
+            // Initialize voice recognition
+            initVoiceRecognition();
+        });
+        
+        // Initialize charts
+        function initCharts() {
+            // Crop Distribution Chart
+            const cropCtx = document.getElementById('cropChart').getContext('2d');
+            const cropChart = new Chart(cropCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Tomato', 'Onion', 'Potato', 'Chili', 'Wheat', 'Rice'],
+                    datasets: [{
+                        data: [15, 20, 18, 12, 25, 10],
+                        backgroundColor: [
+                            '#e74c3c', '#3498db', '#2ecc71', '#e67e22', '#f1c40f', '#9b59b6'
+                        ],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'right',
+                        },
+                        title: {
+                            display: false
+                        }
+                    }
+                }
+            });
+            
+            // Price Trends Chart
+            const priceCtx = document.getElementById('priceChart').getContext('2d');
+            const priceChart = new Chart(priceCtx, {
+                type: 'line',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'],
+                    datasets: [
+                        {
+                            label: 'Tomato',
+                            data: [30, 32, 28, 35, 40, 38, 42],
+                            borderColor: '#e74c3c',
+                            backgroundColor: 'rgba(231, 76, 60, 0.1)',
+                            tension: 0.3,
+                            fill: true
+                        },
+                        {
+                            label: 'Onion',
+                            data: [25, 28, 30, 32, 35, 33, 38],
+                            borderColor: '#3498db',
+                            backgroundColor: 'rgba(52, 152, 219, 0.1)',
+                            tension: 0.3,
+                            fill: true
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        title: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            title: {
+                                display: true,
+                                text: 'Price (₹/kg)'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
+        // Set up event listeners
+        function setupEventListeners() {
+            // Voice command button
+            document.getElementById('voiceCommandBtn').addEventListener('click', showVoiceCommands);
+            
+            // Close popup button
+            document.getElementById('closePopup').addEventListener('click', hideVoiceCommands);
+            
+            // Overlay click
+            document.getElementById('overlay').addEventListener('click', hideVoiceCommands);
+            
+            // Add crop button
+            document.getElementById('addCropBtn').addEventListener('click', addNewCrop);
+            
+            // Suggest price button
+            document.getElementById('suggestPriceBtn').addEventListener('click', suggestPrice);
+            
+            // Clear form button
+            document.getElementById('clearFormBtn').addEventListener('click', clearForm);
+            
+            // Export button
+            document.getElementById('exportBtn').addEventListener('click', exportToCSV);
+        }
+        
+        // Initialize voice recognition
+        function initVoiceRecognition() {
+            // Check if browser supports speech recognition
+            if (!('webkitSpeechRecognition' in window)) {
+                alert("Your browser doesn't support speech recognition. Please use Chrome, Edge, or Safari.");
+                return;
+            }
+            
+            // Initialize recognition objects for each field
+            const fields = [
+                { id: 'voiceCropBtn', input: 'cropName', feedback: 'cropFeedback' },
+                { id: 'voiceQuantityBtn', input: 'cropQuantity', feedback: 'quantityFeedback' },
+                { id: 'voicePriceBtn', input: 'cropPrice', feedback: 'priceFeedback' },
+                { id: 'voiceLocationBtn', input: 'location', feedback: 'locationFeedback' }
+            ];
+            
+            fields.forEach(field => {
+                const button = document.getElementById(field.id);
+                const input = document.getElementById(field.input);
+                const feedback = document.getElementById(field.feedback);
+                
+                button.addEventListener('click', () => {
+                    startRecognition(input, feedback, button);
+                });
+            });
+            
+            // Full form voice command
+            document.getElementById('voiceFormBtn').addEventListener('click', () => {
+                const feedback = document.getElementById('cropFeedback');
+                feedback.textContent = "Listening for form data...";
+                feedback.style.display = "block";
+                
+                setTimeout(() => {
+                    // Simulate voice input for demo
+                    document.getElementById('cropName').value = "Tomato";
+                    document.getElementById('cropQuantity').value = "150 kg";
+                    document.getElementById('cropPrice').value = "₹38/kg";
+                    document.getElementById('location').value = "Salem, Tamil Nadu";
+                    
+                    feedback.textContent = "Form filled successfully!";
+                    setTimeout(() => {
+                        feedback.style.display = "none";
+                    }, 2000);
+                }, 1500);
+            });
+            
+            // Voice search
+            document.getElementById('voiceSearchBtn').addEventListener('click', () => {
+                const feedback = document.getElementById('cropFeedback');
+                feedback.textContent = "What crop are you looking for?";
+                feedback.style.display = "block";
+                
+                setTimeout(() => {
+                    document.getElementById('searchCrop').value = "tomato";
+                    feedback.textContent = "Searching for tomatoes...";
+                    
+                    setTimeout(() => {
+                        feedback.style.display = "none";
+                        // In a real app, you would filter the table here
+                    }, 1500);
+                }, 1000);
+            });
+        }
+        
+        // Start voice recognition
+        function startRecognition(inputElement, feedbackElement, button) {
+            feedbackElement.textContent = "Listening...";
+            feedbackElement.style.display = "block";
+            button.classList.add('listening');
+            
+            // Simulate recognition for the demo
+            setTimeout(() => {
+                let value = "";
+                
+                // Generate appropriate value based on input field
+                if (inputElement.id === 'cropName') {
+                    value = "Tomato";
+                } else if (inputElement.id === 'cropQuantity') {
+                    value = "100 kg";
+                } else if (inputElement.id === 'cropPrice') {
+                    value = "₹35/kg";
+                } else if (inputElement.id === 'location') {
+                    value = "Salem, Tamil Nadu";
+                }
+                
+                inputElement.value = value;
+                feedbackElement.textContent = `Recognized: "${value}"`;
+                button.classList.remove('listening');
+                
+                setTimeout(() => {
+                    feedbackElement.style.display = "none";
+                }, 2000);
+            }, 1500);
+        }
+        
+        // Show voice commands popup
+        function showVoiceCommands() {
+            document.getElementById('voiceCommandsPopup').style.display = "block";
+            document.getElementById('overlay').style.display = "block";
+        }
+        
+        // Hide voice commands popup
+        function hideVoiceCommands() {
+            document.getElementById('voiceCommandsPopup').style.display = "none";
+            document.getElementById('overlay').style.display = "none";
+        }
+        
+        // Add new crop
+        function addNewCrop() {
+            const cropName = document.getElementById('cropName').value;
+            const cropQuantity = document.getElementById('cropQuantity').value;
+            const cropPrice = document.getElementById('cropPrice').value;
+            const location = document.getElementById('location').value;
+            
+            if (!cropName || !cropQuantity || !cropPrice || !location) {
+                showAlert("Please fill in all fields", 'warning');
+                return;
+            }
+            
+            // Create new crop object
+            const newCrop = {
+                name: cropName,
+                quantity: cropQuantity,
+                price: cropPrice,
+                location: location,
+                status: "success"
+            };
+            
+            // Show success message
+            showAlert(`${cropName} added successfully!`, 'success');
+            
+            // Clear form
+            clearForm();
+        }
+        
+        // Suggest price
+        function suggestPrice() {
+            const cropName = document.getElementById('cropName').value;
+            
+            if (!cropName) {
+                showAlert("Please enter a crop name first", 'warning');
+                return;
+            }
+            
+            // Generate a random price suggestion for demo
+            const minPrice = 20;
+            const maxPrice = 60;
+            const suggestedPrice = Math.floor(Math.random() * (maxPrice - minPrice + 1)) + minPrice;
+            
+            document.getElementById('cropPrice').value = `₹${suggestedPrice}/kg`;
+            showAlert(`Suggested price for ${cropName}: ₹${suggestedPrice}/kg`, 'success');
+        }
+        
+        // Clear form
+        function clearForm() {
+            document.getElementById('cropName').value = "";
+            document.getElementById('cropQuantity').value = "";
+            document.getElementById('cropPrice').value = "";
+            document.getElementById('sowingDate').value = "";
+            document.getElementById('harvestDate').value = "";
+            document.getElementById('location').value = "";
+        }
+        
+        // Export to CSV
+        function exportToCSV() {
+            // In a real app, this would export actual data
+            showAlert("Data exported to CSV successfully", 'success');
+            
+            // Simulate file download
+            setTimeout(() => {
+                const link = document.createElement('a');
+                link.href = 'data:text/csv;charset=utf-8,';
+                link.download = 'farm_data_export.csv';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            }, 500);
+        }
+        
+        // Show alert message
+        function showAlert(message, type) {
+            // Create alert element
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `ai-alert alert-${type}`;
+            alertDiv.innerHTML = `
+                <div class="alert-icon">
+                    <i class="fas ${type === 'success' ? 'fa-check-circle' : 
+                                     type === 'warning' ? 'fa-exclamation-triangle' : 
+                                     type === 'danger' ? 'fa-exclamation-circle' : 
+                                     'fa-info-circle'}"></i>
+                </div>
+                <div>${message}</div>
+            `;
+            
+            // Add to document
+            const aiAlertsContainer = document.getElementById('aiAlertsContainer');
+            aiAlertsContainer.insertBefore(alertDiv, aiAlertsContainer.firstChild);
+            
+            // Remove after 5 seconds
+            setTimeout(() => {
+                alertDiv.remove();
+            }, 5000);
+        }
+    </script>
+</body>
+</html>
