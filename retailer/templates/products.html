@@ -4,15 +4,7 @@
 
 {% block content %}
 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-    <h1 class="h2">Products</h1>
-    <div class="btn-toolbar mb-2 mb-md-0">
-        <div class="btn-group me-2">
-            <button type="button" class="btn btn-sm btn-outline-secondary">Export</button>
-        </div>
-        <a href="{{ url_for('add_product') }}" class="btn btn-sm btn-primary">
-            <i class="bi bi-plus-circle"></i> Add Product
-        </a>
-    </div>
+    <!-- ... existing header ... -->
 </div>
 
 <div class="table-responsive">
@@ -30,101 +22,64 @@
             </tr>
         </thead>
         <tbody>
+            {% for product in products %}
             <tr>
-                <td>PRD-1001</td>
+                <td>{{ product['product_id'] }}</td>
                 <td>
                     <img src="https://via.placeholder.com/50" alt="Product" class="img-thumbnail">
                 </td>
-                <td>Wireless Headphones</td>
-                <td>Electronics</td>
-                <td>₹1,999</td>
-                <td>45</td>
-                <td><span class="badge bg-success">In Stock</span></td>
+                <td>{{ product['name'] }}</td>
+                <td>{{ product['category'] }}</td>
+                <td>₹{{ "{:,.2f}".format(product['price']) }}</td>
+                <td>{{ product['stock'] }}</td>
+                <td>
+                    {% if product['status'] == 'In Stock' %}
+                        <span class="badge bg-success">In Stock</span>
+                    {% elif product['status'] == 'Low Stock' %}
+                        <span class="badge bg-warning text-dark">Low Stock</span>
+                    {% else %}
+                        <span class="badge bg-danger">Out of Stock</span>
+                    {% endif %}
+                </td>
                 <td>
                     <button class="btn btn-sm btn-outline-primary"><i class="bi bi-eye"></i></button>
                     <button class="btn btn-sm btn-outline-secondary"><i class="bi bi-pencil"></i></button>
                     <button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
                 </td>
             </tr>
-            <tr>
-                <td>PRD-1002</td>
-                <td>
-                    <img src="https://via.placeholder.com/50" alt="Product" class="img-thumbnail">
-                </td>
-                <td>Smart Watch</td>
-                <td>Electronics</td>
-                <td>₹3,499</td>
-                <td>22</td>
-                <td><span class="badge bg-success">In Stock</span></td>
-                <td>
-                    <button class="btn btn-sm btn-outline-primary"><i class="bi bi-eye"></i></button>
-                    <button class="btn btn-sm btn-outline-secondary"><i class="bi bi-pencil"></i></button>
-                    <button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
-                </td>
-            </tr>
-            <tr>
-                <td>PRD-1003</td>
-                <td>
-                    <img src="https://via.placeholder.com/50" alt="Product" class="img-thumbnail">
-                </td>
-                <td>Bluetooth Speaker</td>
-                <td>Electronics</td>
-                <td>₹1,299</td>
-                <td>8</td>
-                <td><span class="badge bg-warning text-dark">Low Stock</span></td>
-                <td>
-                    <button class="btn btn-sm btn-outline-primary"><i class="bi bi-eye"></i></button>
-                    <button class="btn btn-sm btn-outline-secondary"><i class="bi bi-pencil"></i></button>
-                    <button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
-                </td>
-            </tr>
-            <tr>
-                <td>PRD-1004</td>
-                <td>
-                    <img src="https://via.placeholder.com/50" alt="Product" class="img-thumbnail">
-                </td>
-                <td>Power Bank</td>
-                <td>Electronics</td>
-                <td>₹899</td>
-                <td>0</td>
-                <td><span class="badge bg-danger">Out of Stock</span></td>
-                <td>
-                    <button class="btn btn-sm btn-outline-primary"><i class="bi bi-eye"></i></button>
-                    <button class="btn btn-sm btn-outline-secondary"><i class="bi bi-pencil"></i></button>
-                    <button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
-                </td>
-            </tr>
-            <tr>
-                <td>PRD-1005</td>
-                <td>
-                    <img src="https://via.placeholder.com/50" alt="Product" class="img-thumbnail">
-                </td>
-                <td>USB Cable</td>
-                <td>Accessories</td>
-                <td>₹199</td>
-                <td>62</td>
-                <td><span class="badge bg-success">In Stock</span></td>
-                <td>
-                    <button class="btn btn-sm btn-outline-primary"><i class="bi bi-eye"></i></button>
-                    <button class="btn btn-sm btn-outline-secondary"><i class="bi bi-pencil"></i></button>
-                    <button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
-                </td>
-            </tr>
+            {% endfor %}
         </tbody>
     </table>
 </div>
 
+<!-- Pagination would go here -->
+{% endblock %}
+{% if total_pages > 1 %}
 <nav aria-label="Page navigation">
     <ul class="pagination justify-content-center">
-        <li class="page-item disabled">
-            <a class="page-link" href="#" tabindex="-1" aria-disabled="true">Previous</a>
+        <li class="page-item {% if current_page == 1 %}disabled{% endif %}">
+            <a class="page-link" 
+               href="{{ url_for('products', page=current_page-1) }}" 
+               aria-label="Previous">
+                Previous
+            </a>
         </li>
-        <li class="page-item active"><a class="page-link" href="#">1</a></li>
-        <li class="page-item"><a class="page-link" href="#">2</a></li>
-        <li class="page-item"><a class="page-link" href="#">3</a></li>
-        <li class="page-item">
-            <a class="page-link" href="#">Next</a>
+        
+        {% for page_num in range(1, total_pages+1) %}
+        <li class="page-item {% if page_num == current_page %}active{% endif %}">
+            <a class="page-link" href="{{ url_for('products', page=page_num) }}">
+                {{ page_num }}
+            </a>
+        </li>
+        {% endfor %}
+        
+        <li class="page-item {% if current_page == total_pages %}disabled{% endif %}">
+            <a class="page-link" 
+               href="{{ url_for('products', page=current_page+1) }}" 
+               aria-label="Next">
+                Next
+            </a>
         </li>
     </ul>
 </nav>
-{% endblock %}
+{% endif %}

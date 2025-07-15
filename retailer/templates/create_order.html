@@ -1,0 +1,301 @@
+{% extends "base.html" %}
+
+{% block title %}Create New Order{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Create New Order</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <a href="{{ url_for('orders') }}" class="btn btn-sm btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i> Back to Orders
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Customer Selection -->
+    <div class="col-lg-4">
+        <div class="card mb-4">
+            <div class="card-header bg-light">
+                <h6 class="mb-0">Customer Information</h6>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <label class="form-label">Select Customer</label>
+                    <select class="form-select" id="customerSelect">
+                        <option selected disabled>Choose customer...</option>
+                        {% for customer in customers %}
+                        <option value="{{ customer.customer_id }}">
+                            {{ customer.name }} - {{ customer.email }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div id="customerDetails" class="d-none">
+                    <div class="border-top pt-3 mt-3">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="avatar-lg me-3">
+                                <div class="avatar-title bg-light text-primary rounded-circle fs-3">
+                                    <span id="customerInitial"></span>
+                                </div>
+                            </div>
+                            <div>
+                                <h5 class="mb-0" id="customerName"></h5>
+                                <div class="text-muted" id="customerEmail"></div>
+                            </div>
+                        </div>
+                        
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item d-flex justify-content-between px-0">
+                                <span>Phone:</span>
+                                <span id="customerPhone"></span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between px-0">
+                                <span>Address:</span>
+                                <span id="customerAddress" class="text-end"></span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between px-0">
+                                <span>Total Orders:</span>
+                                <span id="customerOrders" class="badge bg-primary rounded-pill"></span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Product Selection -->
+    <div class="col-lg-8">
+        <div class="card mb-4">
+            <div class="card-header bg-light">
+                <h6 class="mb-0">Select Products</h6>
+            </div>
+            <div class="card-body">
+                <div class="input-group mb-3">
+                    <span class="input-group-text"><i class="bi bi-search"></i></span>
+                    <input type="text" class="form-control" placeholder="Search products..." id="productSearch">
+                </div>
+                
+                <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
+                    <table class="table table-hover">
+                        <thead class="sticky-top bg-light">
+                            <tr>
+                                <th>Product</th>
+                                <th>Category</th>
+                                <th>Price</th>
+                                <th>Stock</th>
+                                <th class="text-center">Quantity</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for product in products %}
+                            <tr class="product-row" data-id="{{ product.product_id }}" data-name="{{ product.name }}" data-price="{{ product.price }}" data-stock="{{ product.stock }}">
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <img src="https://via.placeholder.com/40" alt="Product" class="img-thumbnail me-2" style="width: 40px; height: 40px;">
+                                        <div>
+                                            <div class="fw-medium">{{ product.name }}</div>
+                                            <div class="text-muted small">{{ product.product_id }}</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>{{ product.category }}</td>
+                                <td>₹{{ "{:,.2f}".format(product.price) }}</td>
+                                <td>
+                                    {% if product.stock > 10 %}
+                                    <span class="badge bg-success">{{ product.stock }}</span>
+                                    {% elif product.stock > 0 %}
+                                    <span class="badge bg-warning text-dark">{{ product.stock }}</span>
+                                    {% else %}
+                                    <span class="badge bg-danger">{{ product.stock }}</span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-center" style="width: 120px;">
+                                    <div class="input-group input-group-sm">
+                                        <button class="btn btn-outline-secondary decrement" type="button">-</button>
+                                        <input type="number" class="form-control text-center quantity" value="0" min="0" max="{{ product.stock }}" data-id="{{ product.product_id }}">
+                                        <button class="btn btn-outline-secondary increment" type="button">+</button>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Order Summary -->
+        <div class="card">
+            <div class="card-header bg-light">
+                <h6 class="mb-0">Order Summary</h6>
+            </div>
+            <div class="card-body">
+                <div id="selectedProducts" class="mb-4">
+                    <p class="text-muted text-center mb-0">No products selected</p>
+                </div>
+                
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <span class="text-muted">Subtotal:</span>
+                    <span id="subtotal">₹0.00</span>
+                </div>
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <span class="text-muted">Tax (18%):</span>
+                    <span id="tax">₹0.00</span>
+                </div>
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <span class="text-muted">Shipping:</span>
+                    <span id="shipping">₹0.00</span>
+                </div>
+                <div class="d-flex justify-content-between align-items-center border-top pt-3">
+                    <h5 class="mb-0">Total:</h5>
+                    <h4 class="mb-0" id="total">₹0.00</h4>
+                </div>
+                
+                <div class="d-grid mt-4">
+                    <button class="btn btn-primary btn-lg" id="createOrderBtn" disabled>
+                        <i class="bi bi-check-circle me-2"></i>Create Order
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Customer selection
+    const customerSelect = document.getElementById('customerSelect');
+    const customerDetails = document.getElementById('customerDetails');
+    
+    customerSelect.addEventListener('change', function() {
+        if (this.value) {
+            // In a real app, you would fetch customer details from your data
+            // For demo, we'll use static data
+            customerDetails.classList.remove('d-none');
+            document.getElementById('customerInitial').textContent = this.options[this.selectedIndex].text.split(' ')[0][0];
+            document.getElementById('customerName').textContent = this.options[this.selectedIndex].text.split(' - ')[0];
+            document.getElementById('customerEmail').textContent = this.options[this.selectedIndex].text.split(' - ')[1];
+            document.getElementById('customerPhone').textContent = '+91 98765 43210';
+            document.getElementById('customerAddress').textContent = '123 Main St, Chennai, TN 600001';
+            document.getElementById('customerOrders').textContent = Math.floor(Math.random() * 10) + 1;
+        }
+    });
+    
+    // Product search
+    const productSearch = document.getElementById('productSearch');
+    productSearch.addEventListener('input', function() {
+        const searchTerm = this.value.toLowerCase();
+        document.querySelectorAll('.product-row').forEach(row => {
+            const productName = row.querySelector('.fw-medium').textContent.toLowerCase();
+            row.style.display = productName.includes(searchTerm) ? '' : 'none';
+        });
+    });
+    
+    // Quantity controls
+    document.querySelectorAll('.increment').forEach(button => {
+        button.addEventListener('click', function() {
+            const input = this.parentNode.querySelector('.quantity');
+            if (parseInt(input.value) < parseInt(input.max)) {
+                input.value = parseInt(input.value) + 1;
+                updateCart();
+            }
+        });
+    });
+    
+    document.querySelectorAll('.decrement').forEach(button => {
+        button.addEventListener('click', function() {
+            const input = this.parentNode.querySelector('.quantity');
+            if (parseInt(input.value) > 0) {
+                input.value = parseInt(input.value) - 1;
+                updateCart();
+            }
+        });
+    });
+    
+    document.querySelectorAll('.quantity').forEach(input => {
+        input.addEventListener('change', function() {
+            if (parseInt(this.value) > parseInt(this.max)) {
+                this.value = this.max;
+            }
+            updateCart();
+        });
+    });
+    
+    // Cart management
+    function updateCart() {
+        const selectedProducts = [];
+        let subtotal = 0;
+        
+        document.querySelectorAll('.quantity').forEach(input => {
+            const quantity = parseInt(input.value);
+            if (quantity > 0) {
+                const productId = input.dataset.id;
+                const productRow = document.querySelector(`.product-row[data-id="${productId}"]`);
+                const name = productRow.dataset.name;
+                const price = parseFloat(productRow.dataset.price);
+                const total = price * quantity;
+                
+                selectedProducts.push({
+                    id: productId,
+                    name: name,
+                    price: price,
+                    quantity: quantity,
+                    total: total
+                });
+                
+                subtotal += total;
+            }
+        });
+        
+        // Update selected products list
+        const selectedProductsContainer = document.getElementById('selectedProducts');
+        
+        if (selectedProducts.length === 0) {
+            selectedProductsContainer.innerHTML = '<p class="text-muted text-center mb-0">No products selected</p>';
+            document.getElementById('createOrderBtn').disabled = true;
+        } else {
+            let html = '<div class="list-group">';
+            selectedProducts.forEach(product => {
+                html += `
+                <div class="list-group-item d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="fw-medium">${product.name}</div>
+                        <div class="text-muted small">${product.id}</div>
+                    </div>
+                    <div>
+                        <span class="badge bg-light text-dark rounded-pill">${product.quantity} × ₹${product.price.toFixed(2)}</span>
+                        <span class="fw-medium ms-2">₹${product.total.toFixed(2)}</span>
+                    </div>
+                </div>
+                `;
+            });
+            html += '</div>';
+            selectedProductsContainer.innerHTML = html;
+            document.getElementById('createOrderBtn').disabled = false;
+        }
+        
+        // Calculate totals
+        const tax = subtotal * 0.18;
+        const shipping = subtotal > 0 ? 50 : 0;
+        const total = subtotal + tax + shipping;
+        
+        document.getElementById('subtotal').textContent = `₹${subtotal.toFixed(2)}`;
+        document.getElementById('tax').textContent = `₹${tax.toFixed(2)}`;
+        document.getElementById('shipping').textContent = `₹${shipping.toFixed(2)}`;
+        document.getElementById('total').textContent = `₹${total.toFixed(2)}`;
+    }
+    
+    // Create order button
+    document.getElementById('createOrderBtn').addEventListener('click', function() {
+        alert('Order created successfully! In a real application, this would save to the database.');
+        // Here you would collect all data and send to your backend
+        // window.location.href = "{{ url_for('orders') }}";
+    });
+});
+</script>
+{% endblock %}

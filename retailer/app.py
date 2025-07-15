@@ -3,6 +3,7 @@ from flask import Flask, render_template, request, redirect, url_for, flash, ses
 import pandas as pd
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime, timedelta
+from math import ceil
 app = Flask(__name__)
 app.secret_key = 'your_secret_key_here'
 app.config['UPLOAD_FOLDER'] = 'data'
@@ -220,26 +221,84 @@ def products():
     if 'user_id' not in session:
         return redirect(url_for('login'))
     
+    # Pagination parameters
+    page = request.args.get('page', 1, type=int)
+    per_page = 10  # Items per page
+    
     products = load_data('products.xlsx')
-    return render_template('products.html', products=products)
+    total_pages = ceil(len(products) / per_page)
+    
+    # Calculate start and end indices
+    start_idx = (page - 1) * per_page
+    end_idx = start_idx + per_page
+    
+    # Get current page items
+    current_products = products[start_idx:end_idx]
+    
+    return render_template(
+        'products.html',
+        products=current_products,
+        current_page=page,
+        total_pages=total_pages
+    )
 
-@app.route('/orders')
+from math import ceil
+
+@app.route('/orders', methods=['GET', 'POST'])
 def orders():
     if 'user_id' not in session:
         return redirect(url_for('login'))
     
-    orders = load_data('orders.xlsx')
+    orders_file = 'orders.xlsx'
+    
+    if request.method == 'POST':
+        # Handle new order submission
+        try:
+            # Load existing orders
+            orders_data = load_data(orders_file)
+            
+            # Generate new order ID
+            existing_ids = [int(o['order_id'].split('-')[1]) for o in orders_data if o['order_id'].startswith('ORD-')]
+            new_id = max(existing_ids) + 1 if existing_ids else 1001
+            order_id = f"ORD-{new_id}"
+            
+            # Create new order
+            new_order = {
+                'order_id': order_id,
+                'customer_id': request.form['customerId'],
+                'customer_name': request.form['customerName'],
+                'date': request.form['orderDate'],
+                'amount': float(request.form['orderAmount']),
+                'status': request.form['orderStatus'],
+                'products': request.form['orderProducts']
+            }
+            
+            # Add to existing data
+            orders_data.append(new_order)
+            
+            # Save back to Excel
+            save_data(orders_file, orders_data)
+            
+            flash('Order added successfully!', 'success')
+            return redirect(url_for('orders'))
+            
+        except Exception as e:
+            flash(f'Error adding order: {str(e)}', 'danger')
+            return redirect(url_for('orders'))
+    
+    # For GET requests
+    orders_data = load_data(orders_file)
     
     # Calculate order metrics
     metrics = {
-        'total_orders': len(orders),
-        'completed': sum(1 for o in orders if o['status'] == 'Completed'),
-        'processing': sum(1 for o in orders if o['status'] == 'Processing'),
-        'cancelled': sum(1 for o in orders if o['status'] == 'Cancelled')
+        'total_orders': len(orders_data),
+        'completed': sum(1 for o in orders_data if o['status'] == 'Completed'),
+        'processing': sum(1 for o in orders_data if o['status'] == 'Processing'),
+        'cancelled': sum(1 for o in orders_data if o['status'] == 'Cancelled'),
+        'shipped': sum(1 for o in orders_data if o['status'] == 'Shipped')
     }
     
-    return render_template('orders.html', orders=orders, metrics=metrics)
-
+    return render_template('orders.html', orders=orders_data, metrics=metrics)
 @app.route('/inventory')
 def inventory():
     if 'user_id' not in session:
