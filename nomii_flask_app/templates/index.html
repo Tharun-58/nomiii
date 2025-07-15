@@ -1,4 +1,3 @@
-html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -20,7 +19,8 @@ html
             --retail: #4361ee;
             --supplier: #7209b7;
             --delivery: #f72585;
-            --farmer: #4CAF50; /* New farmer color */
+            --farmer: #4CAF50;
+            --artisan: #a86a3d;  /* Earthy tone for artisans */
             --text-light: #f8f9fa;
             --text-dark: #212529;
         }
@@ -298,7 +298,11 @@ html
         .farmer {
             --primary: var(--farmer);
         }
-
+        
+        .artisan {
+            --primary: var(--artisan);
+        }
+        
         .submit-btn {
             margin-top: 25px;
         }
@@ -688,7 +692,6 @@ html
                 <button onclick="showSignupSection('F')" class="role-btn farmer">
                     <i class="fas fa-tractor"></i> Continue as Farmer
                 </button>
-                <!-- Add this button inside .role-buttons -->
                 <button onclick="showSignupSection('A')" class="role-btn artisan">
                     <i class="fas fa-paint-brush"></i> Continue as Artisan
                 </button>
@@ -784,7 +787,8 @@ html
                 'R': 'Retailer Signup',
                 'S': 'Supplier Signup',
                 'D': 'Delivery Partner Signup',
-                'F': 'Farmer Signup' // Added farmer
+                'F': 'Farmer Signup',
+                'A': 'Artisan Signup'  // Added Artisan
             };
             document.getElementById('signupTitle').textContent = titles[role];
             
@@ -917,6 +921,38 @@ html
                     </div>
                     <div class="form-group">
                         <input type="text" id="regId" placeholder="Registration ID (Optional)">
+                    </div>
+                    <div class="form-group">
+                        <div class="password-container">
+                            <input type="password" id="password" placeholder="Create Password (8+ chars)" required>
+                            <span class="toggle-password" onclick="togglePasswordVisibility('password')">
+                                <i class="far fa-eye"></i>
+                            </span>
+                        </div>
+                        <div class="error-message" id="password-error"></div>
+                        <div class="password-strength" id="password-strength"></div>
+                        <div class="password-feedback" id="password-feedback"></div>
+                    </div>
+                `,
+                'A': `
+                    <div class="form-group">
+                        <input type="text" id="mobile" placeholder="Mobile (10 digits starting with 6-9)" required>
+                        <div class="error-message" id="mobile-error"></div>
+                    </div>
+                    <div class="form-group">
+                        <input type="text" id="aadhaarLast4" placeholder="Last 4 Aadhaar digits (not 0000/1234)" required>
+                        <div class="error-message" id="aadhaar-error"></div>
+                    </div>
+                    <div class="form-group">
+                        <input type="text" id="craftType" placeholder="Craft Type (e.g., Pottery, Weaving)" required>
+                        <div class="error-message" id="craft-error"></div>
+                    </div>
+                    <div class="form-group">
+                        <input type="text" id="region" placeholder="Region/City (min 3 characters)" required>
+                        <div class="error-message" id="region-error"></div>
+                    </div>
+                    <div class="form-group">
+                        <input type="text" id="groupId" placeholder="Artisan Group ID (Optional)">
                     </div>
                     <div class="form-group">
                         <div class="password-container">
@@ -1068,7 +1104,8 @@ html
                 'R': ['mobile', 'aadhaarLast4', 'gst', 'shopName', 'password'],
                 'S': ['mobile', 'gst', 'location', 'password'],
                 'D': ['mobile', 'license', 'area', 'password'],
-                'F': ['fullName', 'mobile', 'aadhaarLast4', 'village', 'landSize', 'produce', 'experience', 'regId', 'password']
+                'F': ['fullName', 'mobile', 'aadhaarLast4', 'village', 'landSize', 'produce', 'experience', 'regId', 'password'],
+                'A': ['mobile', 'aadhaarLast4', 'craftType', 'region', 'groupId', 'password']  // Added Artisan
             };
 
             fields[currentRole].forEach(field => {
@@ -1154,6 +1191,25 @@ html
                 }
                 if (!data.experience || !/^\d{1,2}$/.test(data.experience) || parseInt(data.experience) < 0 || parseInt(data.experience) > 99) {
                     errors.experience = "Experience must be a number between 0 and 99";
+                    isValid = false;
+                }
+            }
+            else if (currentRole === 'A') {
+                // Artisan validation
+                if (!/^\d{4}$/.test(data.aadhaarLast4) || ['0000', '1111', '1234', '4321'].includes(data.aadhaarLast4)) {
+                    errors.aadhaar = "Invalid last 4 Aadhaar digits";
+                    isValid = false;
+                }
+                if (!data.craftType || data.craftType.length < 3) {
+                    errors.craft = "Craft type needs 3+ characters";
+                    isValid = false;
+                }
+                if (!data.region || data.region.length < 3) {
+                    errors.region = "Region needs 3+ characters";
+                    isValid = false;
+                }
+                if (data.groupId && !/^[a-zA-Z0-9]+$/.test(data.groupId)) {
+                    errors.group = "Group ID must be alphanumeric";
                     isValid = false;
                 }
             }

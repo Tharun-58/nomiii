@@ -704,7 +704,6 @@ function createRippleEffect(button, event) {
 }
 
 // ===== EXPORT FUNCTIONS FOR HTML ONCLICK =====
-// These are needed because the functions are called directly from HTML
 window.showSignupSection = showSignupSection;
 window.processSignup = processSignup;
 window.togglePasswordVisibility = togglePasswordVisibility;
