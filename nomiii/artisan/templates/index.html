@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="ta">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>நோமி - கைவினைஞர் டாஷ்போர்டு | NOMII - Artisan Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Latha:wght@400;700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="logo">
+            <div class="logo-icon">
+                <i class="fas fa-hands"></i>
+            </div>
+            <div class="logo-text">நோமி</div>
+        </div>
+        
+        <div class="header-controls">
+            <div class="control-btn" id="sync-btn">
+                <i class="fas fa-cloud-upload-alt"></i>
+                <span id="sync-text">Sync Data</span>
+            </div>
+            <div class="control-btn" id="lang-toggle-btn">
+                <i class="fas fa-language"></i>
+                <span id="lang-text">தமிழ்</span>
+            </div>
+            <div class="control-btn" id="notifications-btn">
+                <i class="fas fa-bell"></i>
+                <span id="notifications-text">Notifications</span>
+                <div class="notification-badge">5</div>
+            </div>
+            <div class="user-avatar">த</div>
+        </div>
+    </header>
+    
+    <!-- Main Dashboard -->
+    <div class="dashboard-container">
+        <!-- Sidebar Navigation -->
+        <div class="sidebar">
+            <div class="nav-title" id="main-menu-text">Main Menu</div>
+            <div class="nav-item active" data-section="dashboard">
+                <i class="fas fa-home"></i>
+                <span id="dashboard-text">Dashboard</span>
+            </div>
+            <div class="nav-item" data-section="materials">
+                <i class="fas fa-boxes"></i>
+                <span id="materials-text">Materials</span>
+            </div>
+            <div class="nav-item" data-section="analysis">
+                <i class="fas fa-chart-line"></i>
+                <span id="analysis-text">Analysis</span>
+            </div>
+            <div class="nav-item" data-section="insights">
+                <i class="fas fa-lightbulb"></i>
+                <span id="insights-menu-text">AI Insights</span>
+            </div>
+            <div class="nav-item" data-section="settings">
+                <i class="fas fa-cog"></i>
+                <span id="settings-text">Settings</span>
+            </div>
+            
+            <div class="nav-title" style="margin-top: 2rem;" id="quick-actions-text">Quick Actions</div>
+            <div class="nav-item" id="add-product-action">
+                <i class="fas fa-plus-circle"></i>
+                <span id="add-product-action-text">Add Product</span>
+            </div>
+            <div class="nav-item" id="export-data-action">
+                <i class="fas fa-file-export"></i>
+                <span id="export-text">Export Data</span>
+            </div>
+            <div class="nav-item" id="help-center-action">
+                <i class="fas fa-question-circle"></i>
+                <span id="help-text">Help Center</span>
+            </div>
+        </div>
+        
+        <!-- Dashboard Content -->
+        <div class="dashboard-content">
+            <!-- Dashboard Section (Default) -->
+            <div id="dashboard-section" class="section active">
+                <!-- Welcome Card -->
+                <div class="welcome-card">
+                    <h2 id="welcome-title">வரவேற்கிறோம், தமிழன்!</h2>
+                    <p id="welcome-text">உங்கள் கைவினைப் பொருட்களை நிர்வகிக்க இந்த ஸ்மார்ட் டாஷ்போர்டு உதவும். குரல் உள்ளீடு, AI பரிந்துரைகள் மற்றும் எளிய நிர்வாகம் ஆகியவற்றைப் பயன்படுத்தி உங்கள் வணிகத்தை வளர்க்கவும்.</p>
+                    <button class="btn btn-primary" id="guide-btn">
+                        <i class="fas fa-play-circle"></i>
+                        <span id="guide-text">வழிகாட்டி வீடியோவைப் பார்க்கவும்</span>
+                    </button>
+                </div>
+                
+                <!-- Stats Card -->
+                <div class="stats-card">
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <div class="stat-value" id="total-products">0</div>
+                            <div class="stat-label" id="total-products-label">மொத்த பொருட்கள்</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="total-revenue">₹0</div>
+                            <div class="stat-label" id="revenue-label">மாத வருவாய்</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="sales-rate">0%</div>
+                            <div class="stat-label" id="sales-rate-label">விற்பனை விகிதம்</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="new-orders">0</div>
+                            <div class="stat-label" id="orders-label">புதிய ஆர்டர்கள்</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Products Section -->
+                <div class="card" style="grid-column: span 8;">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <i class="fas fa-box-open"></i>
+                            <span id="products-title">உங்கள் பொருட்கள்</span>
+                        </div>
+                        <div class="card-actions">
+                            <button class="btn btn-outline" id="filter-btn">
+                                <i class="fas fa-filter"></i>
+                                <span id="filter-text">வடிகட்டு</span>
+                            </button>
+                            <button class="btn btn-primary" id="add-product-btn">
+                                <i class="fas fa-plus"></i>
+                                <span id="add-product-text">புதிய பொருள்</span>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="table-container">
+                        <table class="inventory-table">
+                            <thead>
+                                <tr>
+                                    <th id="col-product">பொருள்</th>
+                                    <th id="col-category">வகை</th>
+                                    <th id="col-quantity">அளவு</th>
+                                    <th id="col-price">விலை</th>
+                                    <th id="col-status">நிலை</th>
+                                    <th id="col-actions">செயல்கள்</th>
+                                </tr>
+                            </thead>
+                            <tbody id="inventory-body">
+                                <!-- Products will be populated here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <!-- AI Insights Section -->
+                <div class="card" style="grid-column: span 4;">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <i class="fas fa-lightbulb"></i>
+                            <span id="insights-title">AI பரிந்துரைகள்</span>
+                        </div>
+                        <div class="card-actions">
+                            <button class="btn btn-outline" id="refresh-insights">
+                                <i class="fas fa-sync"></i>
+                                <span id="refresh-text">புதுப்பி</span>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="insights-grid" id="insights-container">
+                        <!-- Insights will be populated here -->
+                    </div>
+                </div>
+                
+                <!-- Sales Chart -->
+                <div class="card" style="grid-column: span 6;">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <i class="fas fa-chart-bar"></i>
+                            <span id="sales-title">விற்பனை பகுப்பாய்வு</span>
+                        </div>
+                        <div class="card-actions">
+                            <select class="form-control" id="chart-range" style="width: 150px;">
+                                <option value="7" id="7-days">கடந்த 7 நாட்கள்</option>
+                                <option value="30" id="30-days">கடந்த 30 நாட்கள்</option>
+                                <option value="90" selected id="90-days">கடந்த 90 நாட்கள்</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="chart-container">
+                        <canvas id="salesChart"></canvas>
+                    </div>
+                </div>
+                
+                <!-- Category Distribution -->
+                <div class="card" style="grid-column: span 6;">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <i class="fas fa-pie-chart"></i>
+                            <span id="category-title">வகை வாரியான விற்பனை</span>
+                        </div>
+                    </div>
+                    
+                    <div class="chart-container">
+                        <canvas id="categoryChart"></canvas>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Materials Section -->
+            <div id="materials-section" class="section">
+                <div class="card" style="grid-column: span 12;">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <i class="fas fa-boxes"></i>
+                            <span id="materials-title">Materials Inventory</span>
+                        </div>
+                        <div class="card-actions">
+                            <button class="btn btn-primary" id="add-material-btn">
+                                <i class="fas fa-plus"></i>
+                                <span id="add-material-text">Add Material</span>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="table-container">
+                        <table class="inventory-table">
+                            <thead>
+                                <tr>
+                                    <th>Material</th>
+                                    <th>Type</th>
+                                    <th>Quantity</th>
+                                    <th>Unit Cost</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="materials-body">
+                                <tr>
+                                    <td>Silk Thread</td>
+                                    <td>Textile</td>
+                                    <td>25 kg</td>
+                                    <td>₹850/kg</td>
+                                    <td><span class="stock-badge stock-high">Sufficient</span></td>
+                                    <td>
+                                        <div class="action-cell">
+                                            <div class="action-btn edit-btn"><i class="fas fa-edit"></i></div>
+                                            <div class="action-btn delete-btn"><i class="fas fa-trash"></i></div>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Brass Sheets</td>
+                                    <td>Metal</td>
+                                    <td>8 kg</td>
+                                    <td>₹1200/kg</td>
+                                    <td><span class="stock-badge stock-medium">Medium</span></td>
+                                    <td>
+                                        <div class="action-cell">
+                                            <div class="action-btn edit-btn"><i class="fas fa-edit"></i></div>
+                                            <div class="action-btn delete-btn"><i class="fas fa-trash"></i></div>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Terracotta Clay</td>
+                                    <td>Clay</td>
+                                    <td>40 kg</td>
+                                    <td>₹150/kg</td>
+                                    <td><span class="stock-badge stock-high">Sufficient</span></td>
+                                    <td>
+                                        <div class="action-cell">
+                                            <div class="action-btn edit-btn"><i class="fas fa-edit"></i></div>
+                                            <div class="action-btn delete-btn"><i class="fas fa-trash"></i></div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Analysis Section -->
+            <div id="analysis-section" class="section">
+                <div class="card" style="grid-column: span 6;">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <i class="fas fa-chart-bar"></i>
+                            <span>Sales Trends</span>
+                        </div>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="trendChart"></canvas>
+                    </div>
+                </div>
+                
+                <div class="card" style="grid-column: span 6;">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <i class="fas fa-chart-pie"></i>
+                            <span>Revenue by Category</span>
+                        </div>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="revenueChart"></canvas>
+                    </div>
+                </div>
+                
+                <div class="card" style="grid-column: span 12;">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <i class="fas fa-table"></i>
+                            <span>Performance Metrics</span>
+                        </div>
+                    </div>
+                    <div class="table-container">
+                        <table class="inventory-table">
+                            <thead>
+                                <tr>
+                                    <th>Metric</th>
+                                    <th>Current Month</th>
+                                    <th>Previous Month</th>
+                                    <th>Change</th>
+                                    <th>Target</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Total Revenue</td>
+                                    <td>₹1,25,000</td>
+                                    <td>₹98,500</td>
+                                    <td><span class="stock-badge stock-high">+26.9%</span></td>
+                                    <td>₹1,00,000</td>
+                                </tr>
+                                <tr>
+                                    <td>Products Sold</td>
+                                    <td>142</td>
+                                    <td>115</td>
+                                    <td><span class="stock-badge stock-high">+23.5%</span></td>
+                                    <td>120</td>
+                                </tr>
+                                <tr>
+                                    <td>New Customers</td>
+                                    <td>38</td>
+                                    <td>42</td>
+                                    <td><span class="stock-badge stock-low">-9.5%</span></td>
+                                    <td>45</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- AI Insights Section -->
+            <div id="insights-section" class="section">
+                <div class="card" style="grid-column: span 12;">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <i class="fas fa-lightbulb"></i>
+                            <span id="ai-insights-title">AI Insights & Recommendations</span>
+                        </div>
+                        <div class="card-actions">
+                            <button class="btn btn-outline" id="refresh-ai-insights">
+                                <i class="fas fa-sync"></i>
+                                <span>Refresh Insights</span>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="insights-grid" id="ai-insights-container">
+                        <!-- AI Insights will be populated here -->
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Settings Section -->
+            <div id="settings-section" class="section">
+                <div class="card" style="grid-column: span 6;">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <i class="fas fa-user-cog"></i>
+                            <span>Profile Settings</span>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <form>
+                            <div class="form-group">
+                                <label>Name</label>
+                                <input type="text" class="form-control" value="Tamil Artisan">
+                            </div>
+                            <div class="form-group">
+                                <label>Email</label>
+                                <input type="email" class="form-control" value="artisan@nomii.in">
+                            </div>
+                            <div class="form-group">
+                                <label>Language</label>
+                                <select class="form-control">
+                                    <option>Tamil</option>
+                                    <option>English</option>
+                                </select>
+                            </div>
+                            <button class="btn btn-primary">Update Profile</button>
+                        </form>
+                    </div>
+                </div>
+                
+                <div class="card" style="grid-column: span 6;">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <i class="fas fa-shield-alt"></i>
+                            <span>Security</span>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <form>
+                            <div class="form-group">
+                                <label>Current Password</label>
+                                <input type="password" class="form-control">
+                            </div>
+                            <div class="form-group">
+                                <label>New Password</label>
+                                <input type="password" class="form-control">
+                            </div>
+                            <div class="form-group">
+                                <label>Confirm Password</label>
+                                <input type="password" class="form-control">
+                            </div>
+                            <button class="btn btn-primary">Change Password</button>
+                        </form>
+                    </div>
+                </div>
+                
+                <div class="card" style="grid-column: span 12;">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <i class="fas fa-sliders-h"></i>
+                            <span>Preferences</span>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="preference-item">
+                            <div class="preference-info">
+                                <h4>Voice Assistant</h4>
+                                <p>Enable voice commands for hands-free operation</p>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" checked>
+                                <span class="slider round"></span>
+                            </label>
+                        </div>
+                        <div class="preference-item">
+                            <div class="preference-info">
+                                <h4>Auto Backup</h4>
+                                <p>Automatically backup data to cloud every day</p>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" checked>
+                                <span class="slider round"></span>
+                            </label>
+                        </div>
+                        <div class="preference-item">
+                            <div class="preference-info">
+                                <h4>Low Stock Alerts</h4>
+                                <p>Receive notifications when stock is low</p>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" checked>
+                                <span class="slider round"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Add Product Modal -->
+    <div class="modal" id="add-product-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modal-title">புதிய பொருளைச் சேர்க்கவும்</h3>
+                <button class="modal-close" id="close-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="voice-status" id="voice-status">மைக்ரோஃபோன் தயார்</div>
+                <form id="product-form">
+                    <div class="form-group">
+                        <label for="product-name" id="name-label">பொருளின் பெயர்</label>
+                        <div class="input-group">
+                            <input type="text" id="product-name" class="form-control" required>
+                            <button type="button" class="mic-btn" data-for="product-name">
+                                <i class="fas fa-microphone"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="quantity" id="qty-label">அளவு</label>
+                        <div class="input-group">
+                            <input type="number" id="quantity" class="form-control" min="1" value="1" required>
+                            <button type="button" class="mic-btn" data-for="quantity">
+                                <i class="fas fa-microphone"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="price" id="price-label">விலை (₹)</label>
+                        <div class="input-group">
+                            <input type="number" id="price" class="form-control" min="10" required>
+                            <button type="button" class="mic-btn" data-for="price">
+                                <i class="fas fa-microphone"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary" style="width: 100%;">
+                        <i class="fas fa-save"></i>
+                        <span id="save-text">சேமிக்கவும்</span>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Voice Assistant -->
+    <div class="voice-assistant">
+        <button class="voice-btn" id="voice-btn">
+            <i class="fas fa-microphone"></i>
+        </button>
+        
+        <div class="voice-panel" id="voice-panel">
+            <div class="voice-header">
+                <div class="voice-title" id="voice-panel-title">குரை உதவியாளர்</div>
+                <button class="voice-close" id="voice-close">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div class="voice-status" id="voice-panel-status">
+                குரல் உள்ளீட்டிற்காக காத்திருக்கிறது...
+            </div>
+            
+            <button class="btn btn-primary" style="width: 100%;" id="start-listen">
+                <i class="fas fa-microphone"></i>
+                <span id="start-listen-text">கேட்கத் தொடங்கு</span>
+            </button>
+            
+            <div class="voice-commands">
+                <div class="commands-title" id="commands-title">எடுத்துக்காட்டு கட்டளைகள்:</div>
+                
+                <div class="command-item">
+                    <i class="fas fa-arrow-right"></i>
+                    <span id="command1">"புதிய பொருள் சேர்"</span>
+                </div>
+                
+                <div class="command-item">
+                    <i class="fas fa-arrow-right"></i>
+                    <span id="command2">"தஞ்சாவூர் பிளேட் 5 1200 ரூபாய்"</span>
+                </div>
+                
+                <div class="command-item">
+                    <i class="fas fa-arrow-right"></i>
+                    <span id="command3">"குறைந்த சரக்கு காட்டு"</span>
+                </div>
+                
+                <div class="command-item">
+                    <i class="fas fa-arrow-right"></i>
+                    <span id="command4">"விற்பனை அறிக்கை திற"</span>
+                </div>
+
+                <div class="command-item">
+                    <i class="fas fa-arrow-right"></i>
+                    <span id="command5">"பொருட்கள் பிரிவுக்கு செல்"</span>
+                </div>
+
+                <div class="command-item">
+                    <i class="fas fa-arrow-right"></i>
+                    <span id="command6">"ஆய்வு அறிக்கை காட்டு"</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
