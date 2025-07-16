@@ -1,0 +1,61 @@
+version: '3.8'
+
+services:
+  backend:
+    build: 
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: catalog-backend
+    ports:
+      - "5000:5000"
+    environment:
+      - FLASK_ENV=production
+      - MONGO_URI=mongodb://mongo:27017
+      - DB_NAME=catalogdb
+      - GOOGLE_CREDENTIALS_PATH=/app/credentials.json
+      - MODEL_CACHE_DIR=/app/model_cache
+    volumes:
+      - ./backend/credentials.json:/app/credentials.json
+      - model_cache:/app/model_cache
+    depends_on:
+      - mongo
+    restart: unless-stopped
+    networks:
+      - catalog-network
+
+  mongo:
+    image: mongo:5.0
+    container_name: catalog-mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=admin123
+    networks:
+      - catalog-network
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: catalog-frontend
+    ports:
+      - "8501:8501"
+    environment:
+      - BACKEND_URL=http://backend:5000
+    depends_on:
+      - backend
+    networks:
+      - catalog-network
+    restart: unless-stopped
+
+volumes:
+  mongodb_data:
+  model_cache:
+
+networks:
+  catalog-network:
+    driver: bridge

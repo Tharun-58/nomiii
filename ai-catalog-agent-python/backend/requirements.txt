@@ -1,0 +1,28 @@
+# Core Backend Requirements
+flask==2.3.2
+flask-cors==3.0.10
+pymongo==4.3.3
+python-dotenv==1.0.0
+
+# Google Cloud Speech-to-Text
+google-cloud-speech==2.17.0
+google-auth==2.17.3
+
+# AI/ML Requirements
+torch==2.0.1
+transformers==4.31.0
+sentencepiece==0.1.99
+protobuf==3.20.3
+
+# Development & Testing
+pytest==7.4.0
+pytest-cov==4.1.0
+python-dotenv==1.0.0
+
+# ASGI Server (Production)
+gunicorn==20.1.0
+uvicorn==0.22.0
+
+# Optional (for enhanced performance)
+numpy==1.24.3
+pandas==2.0.3
