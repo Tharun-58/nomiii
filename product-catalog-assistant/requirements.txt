@@ -1,0 +1,8 @@
+langgraph
+langchain-core
+pandas
+ipython
+chromadb
+langchain_chroma
+langchain_openai
+pygraphviz
