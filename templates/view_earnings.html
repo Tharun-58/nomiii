@@ -1,87 +1,355 @@
 <!-- templates/view_earnings.html -->
 {% extends "base.html" %}
-{% block title %}Earnings{% endblock %}
-{% block page_title %}Earnings Report{% endblock %}
+{% block title %}Earnings Dashboard{% endblock %}
+{% block page_title %}Earnings Analytics{% endblock %}
 {% block content %}
 <div class="row mb-4">
-    <div class="col-md-4">
-        <div class="card text-center bg-white shadow-sm">
+    <!-- Summary Cards -->
+    <div class="col-md-3">
+        <div class="card text-center bg-white shadow-sm h-100">
             <div class="card-body">
                 <h5 class="card-title">Total Earnings</h5>
                 <h2 class="text-primary">${{ "%.2f"|format(total_earnings) }}</h2>
+                <small class="text-muted">All Time</small>
             </div>
         </div>
     </div>
-    <div class="col-md-4">
-        <div class="card text-center bg-white shadow-sm">
+    <div class="col-md-3">
+        <div class="card text-center bg-white shadow-sm h-100">
             <div class="card-body">
                 <h5 class="card-title">Paid Earnings</h5>
                 <h2 class="text-success">${{ "%.2f"|format(paid_earnings) }}</h2>
+                <small class="text-muted">{{ "%.0f"|format((paid_earnings/total_earnings)*100 if total_earnings > 0 else 0) }}% of total</small>
             </div>
         </div>
     </div>
-    <div class="col-md-4">
-        <div class="card text-center bg-white shadow-sm">
+    <div class="col-md-3">
+        <div class="card text-center bg-white shadow-sm h-100">
             <div class="card-body">
                 <h5 class="card-title">Pending Payments</h5>
                 <h2 class="text-warning">${{ "%.2f"|format(total_earnings - paid_earnings) }}</h2>
+                <small class="text-muted">{{ "%.0f"|format(((total_earnings - paid_earnings)/total_earnings)*100 if total_earnings > 0 else 0 }}% of total</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center bg-white shadow-sm h-100">
+            <div class="card-body">
+                <h5 class="card-title">Avg. Order Value</h5>
+                <h2 class="text-info">${{ "%.2f"|format(avg_order_value) }}</h2>
+                <small class="text-muted">{{ total_orders }} orders</small>
             </div>
         </div>
     </div>
 </div>
 
-<div class="card shadow-sm mb-4">
-    <div class="card-header bg-white">
-        <h5 class="mb-0">Earnings Breakdown</h5>
-    </div>
-    <div class="card-body">
-        {{ earnings_chart|safe }}
+<div class="row mb-4">
+    <!-- Time Period Selector -->
+    <div class="col-12">
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Analytics Dashboard</h5>
+                <div class="btn-group" role="group">
+                    <button type="button" class="btn btn-outline-secondary period-btn active" data-period="7d">7 Days</button>
+                    <button type="button" class="btn btn-outline-secondary period-btn" data-period="30d">30 Days</button>
+                    <button type="button" class="btn btn-outline-secondary period-btn" data-period="90d">90 Days</button>
+                    <button type="button" class="btn btn-outline-secondary period-btn" data-period="all">All Time</button>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-8">
+                        <div class="chart-container" style="height: 300px;">
+                            {{ earnings_chart|safe }}
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="chart-container" style="height: 300px;">
+                            {{ payment_status_chart|safe }}
+                        </div>
+                    </div>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-md-6">
+                        <div class="chart-container" style="height: 300px;">
+                            {{ top_products_chart|safe }}
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="chart-container" style="height: 300px;">
+                            {{ top_retailers_chart|safe }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
 <div class="card shadow-sm">
-    <div class="card-header bg-white">
-        <h5 class="mb-0">All Earnings</h5>
+    <div class="card-header bg-white d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">Earnings Transactions</h5>
+        <div>
+            <input type="text" id="searchInput" class="form-control form-control-sm" placeholder="Search...">
+        </div>
     </div>
     <div class="card-body">
         <div class="table-responsive">
-            <table class="table table-hover">
+            <table class="table table-hover" id="earningsTable">
                 <thead>
                     <tr>
-                        <th>Earning ID</th>
-                        <th>Order ID</th>
-                        <th>Retailer</th>
-                        <th>Product</th>
-                        <th>Amount</th>
-                        <th>Paid</th>
-                        <th>Date</th>
+                        <th>Earning ID <i class="fas fa-sort"></i></th>
+                        <th>Order ID <i class="fas fa-sort"></i></th>
+                        <th>Retailer <i class="fas fa-sort"></i></th>
+                        <th>Product <i class="fas fa-sort"></i></th>
+                        <th>Amount <i class="fas fa-sort"></i></th>
+                        <th>Status <i class="fas fa-sort"></i></th>
+                        <th>Date <i class="fas fa-sort"></i></th>
+                        <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for earning in earnings %}
                     <tr>
                         <td>{{ earning['Earning ID'] }}</td>
-                        <td>{{ earning['Order ID'] }}</td>
+                        <td>
+                            <a href="#" data-bs-toggle="modal" data-bs-target="#orderDetailsModal" 
+                               data-order-id="{{ earning['Order ID'] }}">
+                                {{ earning['Order ID'] }}
+                            </a>
+                        </td>
                         <td>{{ earning['Retailer Name'] }}</td>
                         <td>{{ earning['Product Name'] }}</td>
                         <td>${{ "%.2f"|format(earning['Amount']) }}</td>
                         <td>
                             {% if earning['Paid'] == 'Yes' %}
-                                <span class="badge bg-success">Yes</span>
+                                <span class="badge bg-success">Paid</span>
                             {% else %}
-                                <span class="badge bg-warning">No</span>
+                                <span class="badge bg-warning">Pending</span>
                             {% endif %}
                         </td>
                         <td>{{ earning['Date'] }}</td>
+                        <td>
+                        <small class="text-muted">{{ "%.0f"|format(((total_earnings - paid_earnings)/total_earnings)*100 if total_earnings > 0 else 0) }}% of total</small>
+                        </td>
+
+
+                        </td>
                     </tr>
                     {% else %}
                     <tr>
-                        <td colspan="7" class="text-center py-4">No earnings found</td>
+                        <td colspan="8" class="text-center py-4">No earnings found</td>
                     </tr>
                     {% endfor %}
                 </tbody>
             </table>
         </div>
+        <nav aria-label="Page navigation">
+            <ul class="pagination justify-content-center">
+                <li class="page-item disabled">
+                    <a class="page-link" href="#" tabindex="-1">Previous</a>
+                </li>
+                <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                <li class="page-item"><a class="page-link" href="#">2</a></li>
+                <li class="page-item"><a class="page-link" href="#">3</a></li>
+                <li class="page-item">
+                    <a class="page-link" href="#">Next</a>
+                </li>
+            </ul>
+        </nav>
     </div>
 </div>
+
+<!-- Order Details Modal -->
+<div class="modal fade" id="orderDetailsModal" tabindex="-1" aria-labelledby="orderDetailsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="orderDetailsModalLabel">Order Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="orderDetailsContent">
+                Loading order details...
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Export Modal -->
+<div class="modal fade" id="exportModal" tabindex="-1" aria-labelledby="exportModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exportModalLabel">Export Earnings Data</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label for="exportFormat" class="form-label">Format</label>
+                    <select class="form-select" id="exportFormat">
+                        <option value="csv">CSV</option>
+                        <option value="excel">Excel</option>
+                        <option value="pdf">PDF</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="exportRange" class="form-label">Date Range</label>
+                    <select class="form-select" id="exportRange">
+                        <option value="all">All Data</option>
+                        <option value="custom">Custom Range</option>
+                        <option value="last30">Last 30 Days</option>
+                        <option value="last90">Last 90 Days</option>
+                    </select>
+                </div>
+                <div class="row g-3 mb-3" id="customDateRange" style="display: none;">
+                    <div class="col-md-6">
+                        <label for="startDate" class="form-label">Start Date</label>
+                        <input type="date" class="form-control" id="startDate">
+                    </div>
+                    <div class="col-md-6">
+                        <label for="endDate" class="form-label">End Date</label>
+                        <input type="date" class="form-control" id="endDate">
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="exportButton">Export</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Table sorting functionality
+document.querySelectorAll('th').forEach(header => {
+    header.addEventListener('click', () => {
+        const table = header.closest('table');
+        const columnIndex = Array.from(header.parentNode.children).indexOf(header);
+        const rows = Array.from(table.querySelectorAll('tbody tr'));
+        
+        rows.sort((a, b) => {
+            const aValue = a.children[columnIndex].textContent.trim();
+            const bValue = b.children[columnIndex].textContent.trim();
+            
+            // Check if values are numeric
+            if (!isNaN(aValue) && !isNaN(bValue)) {
+                return parseFloat(aValue) - parseFloat(bValue);
+            }
+            
+            // Date comparison
+            // Date comparison
+if (!isNaN(Date.parse(aValue))) {
+    return new Date(aValue) - new Date(bValue);
+}
+            
+            // Default string comparison
+            return aValue.localeCompare(bValue);
+        });
+        
+        // Remove existing rows
+        rows.forEach(row => table.querySelector('tbody').removeChild(row));
+        
+        // Add sorted rows
+        rows.forEach(row => table.querySelector('tbody').appendChild(row));
+    });
+});
+
+// Search functionality
+document.getElementById('searchInput').addEventListener('keyup', function() {
+    const input = this.value.toLowerCase();
+    const rows = document.querySelectorAll('#earningsTable tbody tr');
+    
+    rows.forEach(row => {
+        const text = row.textContent.toLowerCase();
+        row.style.display = text.includes(input) ? '' : 'none';
+    });
+});
+
+// Period filter buttons
+document.querySelectorAll('.period-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+        document.querySelectorAll('.period-btn').forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+        // Here you would typically make an AJAX call to filter data
+        // For now, we'll just show a message
+        const period = this.dataset.period;
+        alert(`Filtering for ${period} period - this would reload data in a real application`);
+    });
+});
+
+// Mark as paid functionality
+function markAsPaid(earningId) {
+    if (confirm(`Are you sure you want to mark earning ${earningId} as paid?`)) {
+        // Here you would typically make an AJAX call to update the status
+        alert(`Earning ${earningId} marked as paid - this would update the database in a real application`);
+        // Reload the page or update the UI
+        location.reload();
+    }
+}
+
+// Order details modal
+document.getElementById('orderDetailsModal').addEventListener('show.bs.modal', function(event) {
+    const button = event.relatedTarget;
+    const orderId = button.getAttribute('data-order-id');
+    const modal = this;
+    
+    // Here you would typically make an AJAX call to get order details
+    // For now, we'll just show a mock response
+    fetch(`/api/orders/${orderId}`)
+        .then(response => response.json())
+        .then(data => {
+            modal.querySelector('#orderDetailsContent').innerHTML = `
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6>Order Information</h6>
+                        <p><strong>Order ID:</strong> ${orderId}</p>
+                        <p><strong>Retailer:</strong> ${data.retailer || 'Retailer 1'}</p>
+                        <p><strong>Order Date:</strong> ${data.date || '2025-06-15'}</p>
+                        <p><strong>Status:</strong> <span class="badge bg-success">${data.status || 'Delivered'}</span></p>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>Product Details</h6>
+                        <p><strong>Product:</strong> ${data.product || 'Wireless Earbuds'}</p>
+                        <p><strong>Quantity:</strong> ${data.quantity || 3}</p>
+                        <p><strong>Price:</strong> $${data.price || '79.99'}</p>
+                        <p><strong>Total:</strong> $${data.total || '239.97'}</p>
+                    </div>
+                </div>
+                <div class="mt-3">
+                    <h6>Delivery Information</h6>
+                    <p><strong>Delivery Partner:</strong> ${data.delivery || 'QuickDeliver'}</p>
+                    <p><strong>Status:</strong> <span class="badge bg-info">${data.deliveryStatus || 'In Transit'}</span></p>
+                    <p><strong>Dispatched Date:</strong> ${data.dispatched || '2025-06-16'}</p>
+                    ${data.delivered ? `<p><strong>Delivered Date:</strong> ${data.delivered}</p>` : ''}
+                </div>
+            `;
+        })
+        .catch(error => {
+            modal.querySelector('#orderDetailsContent').innerHTML = `
+                <div class="alert alert-danger">Failed to load order details. Please try again.</div>
+            `;
+        });
+});
+
+// Export modal logic
+document.getElementById('exportRange').addEventListener('change', function() {
+    document.getElementById('customDateRange').style.display = 
+        this.value === 'custom' ? 'flex' : 'none';
+});
+
+document.getElementById('exportButton').addEventListener('click', function() {
+    const format = document.getElementById('exportFormat').value;
+    const range = document.getElementById('exportRange').value;
+    
+    alert(`Exporting data as ${format} for ${range} range - this would download a file in a real application`);
+    document.getElementById('exportModal').querySelector('.btn-close').click();
+});
+</script>
 {% endblock %}

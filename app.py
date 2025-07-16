@@ -426,40 +426,94 @@ def update_delivery(delivery_id):
     
     return redirect(url_for('view_deliveries'))
 
+@app.route('/api/earnings/<earning_id>')
+def get_earning_details(earning_id):
+    earnings_df = read_excel('earnings.xlsx')
+    earning = earnings_df[earnings_df['Earning ID'] == earning_id].to_dict('records')
+    return jsonify(earning[0] if earning else {})
 @app.route('/earnings')
 def view_earnings():
     if 'user_id' not in session:
         return redirect(url_for('login'))
     
-    earnings = read_excel('earnings.xlsx')
+    # Read and merge data
+    earnings_df = read_excel('earnings.xlsx')
+    orders_df = read_excel('orders.xlsx')
     
-    if not earnings.empty:
-        orders = read_excel('orders.xlsx')
-        earnings = earnings.merge(
-            orders[['Order ID', 'Retailer Name', 'Product Name']], 
+    if not earnings_df.empty:
+        # Merge with orders data
+        earnings_df = earnings_df.merge(
+            orders_df[['Order ID', 'Retailer Name', 'Product Name', 'Quantity', 'Price', 'Ordered Date']], 
             on='Order ID', 
             how='left'
         )
-    
-    if not earnings.empty:
-        earnings['Date'] = pd.to_datetime(earnings['Date'], errors='coerce')
-        earnings = earnings.dropna(subset=['Date'])  # Drop rows where Date conversion failed
-        daily_earnings = earnings.resample('D', on='Date')['Amount'].sum().reset_index()
-        fig = px.line(daily_earnings, x='Date', y='Amount', 
-                     title='Daily Earnings Trend', markers=True)
-        earnings_graph = fig.to_html(full_html=False)
+        
+        # Convert and clean dates
+        earnings_df['Date'] = pd.to_datetime(earnings_df['Date'], errors='coerce')
+        earnings_df = earnings_df.dropna(subset=['Date'])
+        
+        # Calculate metrics
+        total_earnings = earnings_df['Amount'].sum()
+        paid_earnings = earnings_df[earnings_df['Paid'] == 'Yes']['Amount'].sum()
+        avg_order_value = earnings_df['Amount'].mean()
+        total_orders = len(earnings_df)
+        
+        # Create charts
+        charts = {
+            'earnings_chart': create_earnings_chart(earnings_df),
+            'payment_status_chart': create_payment_chart(earnings_df),
+            'top_products_chart': create_top_products_chart(earnings_df),
+            'top_retailers_chart': create_top_retailers_chart(earnings_df)
+        }
+        
+        # Sort for table view
+        earnings_df = earnings_df.sort_values('Date', ascending=False)
+        earnings_data = earnings_df.to_dict('records')
     else:
-        earnings_graph = "<p>No earnings data available</p>"
-
-    total_earnings = earnings['Amount'].sum() if not earnings.empty else 0
-    paid_earnings = earnings[earnings['Paid'] == 'Yes']['Amount'].sum() if not earnings.empty else 0
+        earnings_data = []
+        total_earnings = paid_earnings = avg_order_value = 0
+        total_orders = 0
+        charts = {k: "<p>No data available</p>" for k in [
+            'earnings_chart', 'payment_status_chart', 
+            'top_products_chart', 'top_retailers_chart'
+        ]}
 
     return render_template('view_earnings.html', 
-                          earnings=earnings.to_dict('records'),
-                          total_earnings=total_earnings,
-                          paid_earnings=paid_earnings,
-                          earnings_graph=earnings_graph)
+                         earnings=earnings_data,
+                         total_earnings=total_earnings,
+                         paid_earnings=paid_earnings,
+                         avg_order_value=avg_order_value,
+                         total_orders=total_orders,
+                         **charts)
 
+def create_earnings_chart(df):
+    daily_earnings = df.resample('D', on='Date')['Amount'].sum().reset_index()
+    return px.line(daily_earnings, x='Date', y='Amount', 
+                  title='Daily Earnings Trend').to_html(full_html=False)
+
+# Similar chart creation functions for other visualizations
+@app.route('/api/orders/<order_id>')
+def get_order_details(order_id):
+    # This would be more comprehensive in a real application
+    orders_df = read_excel('orders.xlsx')
+    deliveries_df = read_excel('deliveries.xlsx')
+    
+    order = orders_df[orders_df['Order ID'] == order_id].iloc[0].to_dict() if not orders_df.empty else {}
+    delivery = deliveries_df[deliveries_df['Order ID'] == order_id].iloc[0].to_dict() if not deliveries_df.empty else {}
+    
+    return jsonify({
+        'retailer': order.get('Retailer Name', ''),
+        'date': order.get('Ordered Date', ''),
+        'status': order.get('Status', ''),
+        'product': order.get('Product Name', ''),
+        'quantity': order.get('Quantity', 0),
+        'price': order.get('Price', 0),
+        'total': order.get('Quantity', 0) * order.get('Price', 0),
+        'delivery': delivery.get('Delivery Partner', ''),
+        'deliveryStatus': delivery.get('Status', ''),
+        'dispatched': delivery.get('Dispatched Date', ''),
+        'delivered': delivery.get('Delivered Date', '')
+    })
 # Analytics
 @app.route('/analytics')
 def view_analytics():
@@ -545,16 +599,13 @@ def start_voice_command():
         recognizer.adjust_for_ambient_noise(source)
         print("Listening for command...")
         try:
-            # First ask for language
-            language = ask_language(recognizer, source)
-            
-            # Then ask what they want to do
-            action = ask_action(recognizer, source, language)
-            
-            # Process the action
-            response = process_action(recognizer, source, action, language)
-            
-            return response
+            audio = recognizer.listen(source, timeout=5)
+            command = recognizer.recognize_google(audio)
+            print("Recognized Command:", command)
+
+            # Process the command
+            response_message = process_voice_command(command)
+            return response_message
 
         except sr.WaitTimeoutError:
             return "Listening timed out. Please try again."
@@ -562,286 +613,6 @@ def start_voice_command():
             return "Could not understand the audio."
         except sr.RequestError as e:
             return f"Could not request results; {e}"
-
-def speak(text, language='en'):
-    """Function to convert text to speech (implementation depends on your setup)"""
-    # You can use gTTS or pyttsx3 here
-    print(f"AI: {text}")
-
-def ask_language(recognizer, source):
-    """Ask user to select language"""
-    speak("Please choose your language: Tamil, Hindi, or English")
-    
-    while True:
-        try:
-            audio = recognizer.listen(source, timeout=5)
-            language = recognizer.recognize_google(audio).lower()
-            
-            if 'tamil' in language:
-                return 'ta'
-            elif 'hindi' in language:
-                return 'hi'
-            elif 'english' in language:
-                return 'en'
-            else:
-                speak("Sorry, I didn't understand. Please say Tamil, Hindi, or English")
-                
-        except sr.UnknownValueError:
-            speak("Sorry, I didn't catch that. Please say Tamil, Hindi, or English")
-
-def ask_action(recognizer, source, language):
-    """Ask user what action they want to perform"""
-    if language == 'ta':
-        speak("நீங்கள் என்ன செய்ய விரும்புகிறீர்கள்? பொருட்களை சேர்க்க, பங்கு தகவல் பெற, வருவாய் தகவல் பெற, அல்லது ஆர்டர்கள் பற்றி தகவல் பெற?")
-    elif language == 'hi':
-        speak("आप क्या करना चाहते हैं? उत्पाद जोड़ें, स्टॉक जानकारी प्राप्त करें, आय जानकारी प्राप्त करें, या आदेशों के बारे में जानकारी प्राप्त करें?")
-    else:
-        speak("What would you like to do? Add products, get stock information, get earnings information, or get orders information?")
-    
-    while True:
-        try:
-            audio = recognizer.listen(source, timeout=5)
-            action = recognizer.recognize_google(audio).lower()
-            
-            if any(word in action for word in ['add', 'insert', 'create']):
-                return 'add'
-            elif any(word in action for word in ['stock', 'inventory']):
-                return 'stock'
-            elif any(word in action for word in ['earn', 'income', 'revenue']):
-                return 'earnings'
-            elif any(word in action for word in ['order', 'purchase']):
-                return 'orders'
-            elif any(word in action for word in ['tell me', 'explain', 'describe']):
-                return 'explain'
-            else:
-                if language == 'ta':
-                    speak("மன்னிக்கவும், எனக்கு புரியவில்லை. தயவுசெய்து மீண்டும் முயற்சிக்கவும்")
-                elif language == 'hi':
-                    speak("क्षमा करें, मुझे समझ नहीं आया। कृपया पुनः प्रयास करें")
-                else:
-                    speak("Sorry, I didn't understand. Please try again")
-                
-        except sr.UnknownValueError:
-            if language == 'ta':
-                speak("மன்னிக்கவும், எனக்கு கேட்க முடியவில்லை. தயவுசெய்து மீண்டும் முயற்சிக்கவும்")
-            elif language == 'hi':
-                speak("क्षमा करें, मैं नहीं सुन सकता। कृपया पुनः प्रयास करें")
-            else:
-                speak("Sorry, I couldn't hear that. Please try again")
-
-def process_action(recognizer, source, action, language):
-    """Process the user's requested action"""
-    if action == 'add':
-        return add_product_voice(recognizer, source, language)
-    elif action == 'stock':
-        return get_stock_info(language)
-    elif action == 'earnings':
-        return get_earnings_info(language)
-    elif action == 'orders':
-        return get_orders_info(language)
-    elif action == 'explain':
-        return explain_data(language)
-    else:
-        if language == 'ta':
-            return "செயலைச் செயல்படுத்த முடியவில்லை"
-        elif language == 'hi':
-            return "कार्रवाई को संसाधित नहीं कर सका"
-        else:
-            return "Could not process the action"
-
-def add_product_voice(recognizer, source, language):
-    """Handle adding products via voice"""
-    if language == 'ta':
-        speak("பொருளின் பெயர் என்ன?")
-    elif language == 'hi':
-        speak("उत्पाद का नाम क्या है?")
-    else:
-        speak("What is the product name?")
-    
-    audio = recognizer.listen(source, timeout=5)
-    product_name = recognizer.recognize_google(audio)
-    
-    if language == 'ta':
-        speak(f"{product_name} இன் அளவு எவ்வளவு? எடுத்துக்காட்டாக, 1 கிலோ அல்லது 500 கிராம்")
-    elif language == 'hi':
-        speak(f"{product_name} की मात्रा कितनी है? उदाहरण के लिए, 1 किलो या 500 ग्राम")
-    else:
-        speak(f"How much quantity for {product_name}? For example, 1 kg or 500 grams")
-    
-    audio = recognizer.listen(source, timeout=5)
-    quantity_info = recognizer.recognize_google(audio)
-    
-    # Parse quantity and unit
-    try:
-        quantity, unit = parse_quantity(quantity_info)
-    except ValueError:
-        if language == 'ta':
-            return "அளவை புரிந்து கொள்ள முடியவில்லை. தயவுசெய்து மீண்டும் முயற்சிக்கவும்"
-        elif language == 'hi':
-            return "मात्रा को समझ नहीं सका। कृपया पुनः प्रयास करें"
-        else:
-            return "Could not understand the quantity. Please try again"
-    
-    if language == 'ta':
-        speak(f"{product_name} இன் விலை என்ன?")
-    elif language == 'hi':
-        speak(f"{product_name} की कीमत क्या है?")
-    else:
-        speak(f"What is the price for {product_name}?")
-    
-    audio = recognizer.listen(source, timeout=5)
-    price = recognizer.recognize_google(audio)
-    
-    try:
-        price = float(price)
-    except ValueError:
-        if language == 'ta':
-            return "விலையை புரிந்து கொள்ள முடியவில்லை. தயவுசெய்து மீண்டும் முயற்சிக்கவும்"
-        elif language == 'hi':
-            return "कीमत समझ नहीं सका। कृपया पुनः प्रयास करें"
-        else:
-            return "Could not understand the price. Please try again"
-    
-    # Add product to database
-    products = read_excel('products.xlsx')
-    user_id = session.get('user_id', 'voice_user')
-    
-    new_product = {
-        'Product ID': str(uuid.uuid4()),
-        'User ID': user_id,
-        'Name': product_name,
-        'Category': 'General',
-        'Price': price,
-        'Stock': quantity,
-        'Description': f'{quantity} {unit}',
-        'Image URL': 'https://via.placeholder.com/150',
-        'Status': 'Active',
-        'Created Date': datetime.now().strftime('%Y-%m-%d'),
-        'Last Updated': datetime.now().strftime('%Y-%m-%d')
-    }
-    
-    updated_products = pd.concat([products, pd.DataFrame([new_product])], ignore_index=True)
-    write_excel('products.xlsx', updated_products)
-    
-    if language == 'ta':
-        return f"{quantity} {unit} {product_name} விலை ரூ.{price} வெற்றிகரமாக சேர்க்கப்பட்டது"
-    elif language == 'hi':
-        return f"{quantity} {unit} {product_name} कीमत ₹{price} सफलतापूर्वक जोड़ा गया"
-    else:
-        return f"{quantity} {unit} of {product_name} priced at ₹{price} added successfully"
-
-def parse_quantity(text):
-    """Parse quantity and unit from text"""
-    # Match numbers followed by units
-    match = re.search(r'(\d+)\s*(kg|g|gram|grams|kilo|kilograms|kilos)?', text.lower())
-    if match:
-        quantity = int(match.group(1))
-        unit = match.group(2) or 'units'
-        
-        # Standardize units
-        if unit in ['kg', 'kilo', 'kilos', 'kilograms']:
-            unit = 'kg'
-        elif unit in ['g', 'gram', 'grams']:
-            unit = 'g'
-            
-        return quantity, unit
-    raise ValueError("Could not parse quantity")
-
-def get_stock_info(language):
-    """Get stock information"""
-    products = read_excel('products.xlsx')
-    user_id = session.get('user_id')
-    
-    if user_id:
-        user_products = products[products['User ID'] == user_id]
-    else:
-        user_products = products
-    
-    total_products = len(user_products)
-    low_stock = user_products[user_products['Stock'] < 10]
-    
-    if language == 'ta':
-        message = f"நீங்கள் {total_products} பொருட்களைக் கொண்டிருக்கிறீர்கள். "
-        if len(low_stock) > 0:
-            message += f"{len(low_stock)} பொருட்கள் குறைந்த பங்கில் உள்ளன. அவை: "
-            message += ", ".join(low_stock['Name'].tolist())
-        else:
-            message += "எந்த பொருட்களும் குறைந்த பங்கில் இல்லை."
-    elif language == 'hi':
-        message = f"आपके पास {total_products} उत्पाद हैं। "
-        if len(low_stock) > 0:
-            message += f"{len(low_stock)} उत्पाद कम स्टॉक में हैं। वे हैं: "
-            message += ", ".join(low_stock['Name'].tolist())
-        else:
-            message += "कोई भी उत्पाद कम स्टॉक में नहीं है।"
-    else:
-        message = f"You have {total_products} products. "
-        if len(low_stock) > 0:
-            message += f"{len(low_stock)} products are low in stock. They are: "
-            message += ", ".join(low_stock['Name'].tolist())
-        else:
-            message += "No products are low in stock."
-    
-    return message
-
-def get_earnings_info(language):
-    """Get earnings information"""
-    earnings = read_excel('earnings.xlsx')
-    user_id = session.get('user_id')
-    
-    if user_id:
-        user_earnings = earnings[earnings['Supplier ID'] == user_id]
-    else:
-        user_earnings = earnings
-    
-    total_earnings = user_earnings['Amount'].sum() if not user_earnings.empty else 0
-    paid_earnings = user_earnings[user_earnings['Paid'] == 'Yes']['Amount'].sum() if not user_earnings.empty else 0
-    
-    if language == 'ta':
-        message = f"உங்கள் மொத்த வருவாய் ரூ.{total_earnings:.2f}. இதில் ரூ.{paid_earnings:.2f} செலுத்தப்பட்டுள்ளது."
-    elif language == 'hi':
-        message = f"आपकी कुल आय ₹{total_earnings:.2f} है। इसमें से ₹{paid_earnings:.2f} का भुगतान किया गया है।"
-    else:
-        message = f"Your total earnings are ₹{total_earnings:.2f}. Out of this, ₹{paid_earnings:.2f} has been paid."
-    
-    return message
-
-def get_orders_info(language):
-    """Get orders information"""
-    orders = read_excel('orders.xlsx')
-    user_id = session.get('user_id')
-    
-    if user_id:
-        user_orders = orders[orders['Supplier ID'] == user_id]
-    else:
-        user_orders = orders
-    
-    total_orders = len(user_orders)
-    pending_orders = len(user_orders[user_orders['Status'] == 'Pending']) if not user_orders.empty else 0
-    
-    if language == 'ta':
-        message = f"உங்களிடம் {total_orders} ஆர்டர்கள் உள்ளன. {pending_orders} ஆர்டர்கள் நிலுவையில் உள்ளன."
-    elif language == 'hi':
-        message = f"आपके पास {total_orders} आदेश हैं। {pending_orders} आदेश लंबित हैं।"
-    else:
-        message = f"You have {total_orders} orders. {pending_orders} orders are pending."
-    
-    return message
-
-def explain_data(language):
-    """Explain the data to the user"""
-    if language == 'ta':
-        return ("இந்த அமைப்பு உங்கள் தயாரிப்புகள், ஆர்டர்கள், விநியோகங்கள் மற்றும் வருவாயை நிர்வகிக்க உதவுகிறது. "
-                "நீங்கள் பொருட்களைச் சேர்க்கலாம், பங்கு நிலுவைகளைப் பார்க்கலாம், ஆர்டர்களைப் பார்க்கலாம் மற்றும் "
-                "உங்கள் வருவாய் பற்றிய தகவல்களைப் பெறலாம்.")
-    elif language == 'hi':
-        return ("यह प्रणाली आपके उत्पादों, आदेशों, डिलीवरी और आय को प्रबंधित करने में आपकी सहायता करती है। "
-                "आप उत्पाद जोड़ सकते हैं, स्टॉक स्तर देख सकते हैं, ऑर्डर देख सकते हैं और "
-                "अपनी आय के बारे में जानकारी प्राप्त कर सकते हैं।")
-    else:
-        return ("This system helps you manage your products, orders, deliveries and earnings. "
-                "You can add products, view stock levels, check orders and "
-                "get information about your earnings.")
 def process_voice_command(command):
     pattern = r"add\s+(\w+)\s*(\d+)\s*(kg|g|gram|grams)?"
     match = re.search(pattern, command.lower())
